@@ -1,121 +1,166 @@
 require 'aws-sdk'
-COL_WIDTH = 20
+  
+def print_section_header(args={})
+  title      = args[:title]
+  puts "\n"
+  puts "=============================="
+  puts "= Summary for: #{title}"
+  puts "=============================="
+end
+
+def print_column_labels(args={})
+  name = args[:name]
+  attributes = args[:attributes]
+  attributes.each {|attribute| printf "%-#{attribute[:width]}s", attribute[:column]}
+  puts "\n"  
+  attributes.each {|attribute| printf "%-#{attribute[:width]}s", "-" * attribute[:column].size}
+  puts "\n" 
+end
+
+def print_data(args={})
+  data   = args[:data]
+  attributes = args[:attributes]
+
+  sum = {}
+  sum[:count] = 0
+
+  data.each do |datum|
+    i = 0 
+    continue = true
+    while continue
+      continue = false
+      attributes.each do |attribute|
+        case attribute[:type]
+        when :unary
+          if i == 0  
+            if attribute[:stub]
+              output = datum[attribute[:stub]].send(attribute[:target]).to_s
+            else
+              output = datum.send(attribute[:target]).to_s
+            end
+          else
+            output = ""
+          end
+        when :tags  
+          tag = datum[attribute[:stub]][i]
+          if tag
+             output = tag.key + " = " + tag.value
+             continue = true if i < datum[attribute[:stub]].size - 1
+          end
+        when :list  
+          item = datum[attribute[:stub]][i]
+          if item
+             output = item.send(attribute[:target]).to_s
+             continue = true if i < datum[attribute[:stub]].size - 1
+          end
+        else
+        end
+        printf "%-#{attribute[:width]}s", output.slice(0,attribute[:width]-1) unless output.nil?
+
+        if attribute[:sum]
+          sum[attribute[:target].to_sym] = 0 if sum[attribute[:target].to_sym].nil?
+          sum[attribute[:target].to_sym] += output.to_i
+        end
+      end
+      i += 1
+      puts "\n"
+    end
+    sum[:count] += 1
+  end
+  return sum
+end
 
 Aws.config.update({
   region: "us-west-2",
   credentials: Aws::SharedCredentials.new(profile_name: "default"),
 })
 
-def newline
-  printf "\n"
+###############################################################################
+# EC2
+###############################################################################
+
+section_name    = "EC2"
+ec2_attributes  = [ {column: "ID",              type: :unary,                     target: "instance_id",        width: 20},
+                    {column: "Type",            type: :unary,                     target: "instance_type",      width: 15},
+                    {column: "State",           type: :unary, stub: "state",      target: "name",               width: 15},
+                    {column: "AZ",              type: :unary, stub: "placement",  target: "availability_zone",  width: 15},
+                    {column: "EBS Optimized?",  type: :unary,                     target: "ebs_optimized",      width: 15},
+                    {column: "Tags",            type: :tags,  stub: "tags", width: 60}]
+
+ec2_client      = Aws::EC2::Client.new
+description        = ec2_client.describe_instances
+
+print_section_header({title: section_name})
+print_column_labels({name: section_name, attributes: ec2_attributes})
+
+total_rows=0
+description.reservations.each do |reservation|
+  totals = print_data({data: reservation.instances, attributes: ec2_attributes}) 
+  total_rows += totals[:count]
 end
 
-def print_section_header(category = "Undefined")
-  newline
-  puts "=============================="
-  puts "= Summary for: #{category}"
-  puts "=============================="
-end
+puts "\nTotal EC2 Instances = #{total_rows}\n"
 
+###############################################################################
+# EBS
+###############################################################################
 
-def print_column_labels(labels)
-  labels.each {|label| printf "%-#{COL_WIDTH}s", label}
-  newline  
-  labels.each {|label| printf "%-#{COL_WIDTH}s", "-" * label.size}
-  newline
-end
+section_name    = "EBS"
+ebs_attributes  = [ {column: "ID",              type: :unary,                     target: "volume_id",        width: 15},
+                    {column: "Size (GB)",       type: :unary,                     target: "size",             width: 15, sum: true},
+                    {column: "State",           type: :unary,                     target: "state",            width: 15},
+                    {column: "Volume Type",     type: :unary,                     target: "volume_type",      width: 15},
+                    {column: "IOPS",            type: :unary,                     target: "iops",             width: 15, sum: true},
+                    {column: "Encrypted?",      type: :unary,                     target: "encrypted",        width: 15},
+                    {column: "Attachments",     type: :list,  stub: "attachments",                   target: "instance_id",      width: 15},
+                    {column: "Device",          type: :list,  stub: "attachments",                   target: "device",      width: 15},
+                    {column: "Attach State",    type: :list,  stub: "attachments",                   target: "state",      width: 15},
+                    {column: "Tags",            type: :tags,  stub: "tags", width: 60}]
 
-def print_data(data)
-  data.each {|datum| printf "%-#{COL_WIDTH}s", datum.to_s.slice(0,COL_WIDTH-1)}
-  newline
-end
+description        = ec2_client.describe_volumes
 
-# Show EC2 summary data
+print_section_header({title: section_name})
+print_column_labels({name: section_name, attributes: ebs_attributes})
 
-ec2 = Aws::EC2::Client.new
+totals = print_data({data: description.volumes, attributes: ebs_attributes}) 
 
-print_section_header("EC2")
-print_column_labels(["Reservation ID", "Instance ID", "Instance Type", "Instance State", "Availability Zone", "EBS Optimized?", "Tags"])
+puts "\nTotal EBS Volumes = #{totals[:count]}"
+puts "Total EBS Capacity (GB) = #{totals[:size]} GB"
+puts "Total EBS PIOPS = #{totals[:iops]} IOPS"
 
-total_instances = 0
-ec2.describe_instances.reservations.each do |reservation|
-  reservation.instances.each do |instance|
-    print_data([reservation.reservation_id,
-                instance.instance_id,
-                instance.instance_type,
-                instance.state.name,
-                instance.placement.availability_zone,
-                instance.ebs_optimized,
-                instance.tags])
-    total_instances += 1
-  end
-end
-
-puts "\nTotal EC2 Instances = #{total_instances}\n"
-
-# Show EBS summary data
-
-print_section_header("EBS")
-print_column_labels(["Volume ID", "Size (GB)", "State", "Volume Type", "IOPS", "Encrypted?", "Tags"])
-
-total_volumes = 0
-total_size = 0
-
-ec2.describe_volumes.volumes.each do |volume|
-  print_data([volume.volume_id,
-              volume.size,
-              volume.state,
-              volume.volume_type,
-              volume.iops,
-              volume.encrypted,
-              volume.tags])
-  total_volumes += 1
-  total_size += volume.size
-end
-
-puts "\nTotal EBS Volumes = #{total_volumes}\n"
-puts "\nTotal EBS Capacity = #{total_size}GB\n"
-
-# Show VPC summary data
-
-print_section_header("VPC")
-print_column_labels(["VPC ID", "State", "CIDR", "Tenancy", "Default?", "Tags"])
-
-total_vpcs = 0
-ec2.describe_vpcs.vpcs.each do |vpc|
-   print_data([vpc.vpc_id,
-               vpc.state,
-               vpc.cidr_block,
-               vpc.instance_tenancy,
-               vpc.is_default,
-               vpc.tags])
-   total_vpcs += 1
-end
-
-puts "\nTotal VPCs = #{total_vpcs}"
+## Show VPC summary data
+#
+#print_section_header("VPC")
+#print_column_labels(["VPC ID", "State", "CIDR", "Tenancy", "Default?", "Tags"])
+#
+#total_vpcs = 0
+#ec2.describe_vpcs.vpcs.each do |vpc|
+#   print_data([vpc.vpc_id,
+#               vpc.state,
+#               vpc.cidr_block,
+#               vpc.instance_tenancy,
+#               vpc.is_default,
+#               vpc.tags])
+#   total_vpcs += 1
+#end
+#
+#puts "\nTotal VPCs = #{total_vpcs}"
 
 # Show ELB summary data
-
-elb = Aws::ElasticLoadBalancing::Client.new
-
-print_section_header("ELB")
-print_column_labels(["Name", "VPC", "Instances", "AZs", "Scheme"])
-
-total_elbs = 0
-elb.describe_load_balancers.load_balancer_descriptions.each do |elb|
-   print_data([elb.load_balancer_name,
-               elb.vpc_id,
-               elb.instances,
-               elb.availability_zones,
-               elb.scheme])
-   total_elbs += 1
-end
-
-puts "\nTotal ELBs = #{total_elbs}"
-
-
-
-
-
-
-
+#
+#elb = Aws::ElasticLoadBalancing::Client.new
+#
+#print_section_header("ELB")
+#print_column_labels(["Name", "VPC", "Instances", "AZs", "Scheme"])
+#
+#total_elbs = 0
+#elb.describe_load_balancers.load_balancer_descriptions.each do |elb|
+#   print_data([elb.load_balancer_name,
+#               elb.vpc_id,
+#               elb.instances,
+#               elb.availability_zones,
+#               elb.scheme])
+#   total_elbs += 1
+#end
+#
+#puts "\nTotal ELBs = #{total_elbs}"
