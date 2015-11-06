@@ -1,11 +1,12 @@
 require 'aws-sdk'
-  
+require 'oj'
+
 def print_section_header(args={})
   title      = args[:title]
-  puts "\n"
-  puts "=============================="
-  puts "= Summary for: #{title}"
-  puts "=============================="
+  printf "\n"
+  printf "==============================\n"
+  printf "= Summary for: #{title}\n"
+  printf "==============================\n"
 end
 
 def print_column_labels(args={})
@@ -97,74 +98,37 @@ Aws.config.update({
   credentials: Aws::SharedCredentials.new(profile_name: "default"),
 })
 
-###############################################################################
-# EC2
-###############################################################################
+# Populate hash with AWS SDK client objects
+clients = { ec2: Aws::EC2::Client.new }
 
-section_name    = "EC2"
-ec2_attributes  = [ {column: "ID",              type: :unary,                     target: "instance_id",        width: 20, count: true},
-                    {column: "Type",            type: :unary,                     target: "instance_type",      width: 15},
-                    {column: "State",           type: :unary, stub: "state",      target: "name",               width: 15},
-                    {column: "AZ",              type: :unary, stub: "placement",  target: "availability_zone",  width: 15},
-                    {column: "EBS Optimized?",  type: :unary,                     target: "ebs_optimized",      width: 15},
-                    {column: "Tags",            type: :tags,  stub: "tags", width: 60}]
+# Load service definitions
+metadata = Oj.load_file("services.json")
 
-ec2_client      = Aws::EC2::Client.new
-description        = ec2_client.describe_instances
+# Main loop
+metadata[:services].each do |service|
+  section_name    = service[:name] 
+  attributes      = service[:attributes]
+  collection      = service[:collection]
+  client          = clients[service[:client]]
+  description     = client.send(service[:describe_method])
 
-print_section_header({title: section_name})
-print_column_labels({name: section_name, attributes: ec2_attributes})
+  print_section_header({title: section_name})
+  print_column_labels({name: section_name, attributes: attributes})
 
-total_rows = 0
-totals = {}
+  total_rows = 0
+  totals = {}
 
-description.reservations.each do |reservation|
-  totals = print_data({data: reservation.instances, attributes: ec2_attributes}) 
-  total_rows += totals[:count]
+  if section_name == "EC2"
+    description.reservations.each do |reservation|
+      totals = print_data({data: reservation.instances, attributes: attributes}) 
+      total_rows += totals[:count]
+    end
+    totals[:count] = total_rows
+  else
+    totals = print_data({data: description.send(collection), attributes: attributes}) 
+  end
+  print_totals({attributes: attributes, totals: totals })
 end
-
-totals[:count] = total_rows
-
-print_totals({attributes: ec2_attributes, totals: totals })
-
-###############################################################################
-# EBS
-###############################################################################
-
-section_name    = "EBS"
-ebs_attributes  = [ {column: "ID",              type: :unary,                     target: "volume_id",        width: 15, count: true},
-                    {column: "Size (GB)",       type: :unary,                     target: "size",             width: 15, sum: true},
-                    {column: "State",           type: :unary,                     target: "state",            width: 15},
-                    {column: "Volume Type",     type: :unary,                     target: "volume_type",      width: 15},
-                    {column: "IOPS",            type: :unary,                     target: "iops",             width: 15, sum: true},
-                    {column: "Encrypted?",      type: :unary,                     target: "encrypted",        width: 15},
-                    {column: "Attachments",     type: :list,  stub: "attachments",                   target: "instance_id",      width: 15},
-                    {column: "Device",          type: :list,  stub: "attachments",                   target: "device",      width: 15},
-                    {column: "Attach State",    type: :list,  stub: "attachments",                   target: "state",      width: 15},
-                    {column: "Tags",            type: :tags,  stub: "tags", width: 60}]
-
-description        = ec2_client.describe_volumes
-
-print_section_header({title: section_name})
-print_column_labels({name: section_name, attributes: ebs_attributes})
-print_totals({attributes: ebs_attributes, totals: print_data({data: description.volumes, attributes: ebs_attributes})})
-
-###############################################################################
-# VPC
-###############################################################################
-section_name    = "VPC"
-vpc_attributes  = [ {column: "ID",              type: :unary,                     target: "vpc_id",        width: 15, count: true},
-                    {column: "State",           type: :unary,                     target: "state",            width: 15},
-                    {column: "CIDR",            type: :unary,                     target: "cidr_block",      width: 15},
-                    {column: "Tenancy",         type: :unary,                     target: "instance_tenancy",             width: 15},
-                    {column: "Default?",        type: :unary,                     target: "is_default",        width: 15},
-                    {column: "Tags",            type: :tags,  stub: "tags", width: 60}]
-
-description        = ec2_client.describe_vpcs
-
-print_section_header({title: section_name})
-print_column_labels({name: section_name, attributes: vpc_attributes})
-print_totals({attributes: vpc_attributes, totals: print_data({data: description.vpcs, attributes: vpc_attributes})})
 
 # Show ELB summary data
 #

@@ -1,0 +1,169 @@
+{
+    ":services": [
+        {
+            ":name": "EC2",
+            ":client": ":ec2",
+            ":describe_method": "describe_instances",
+            ":attributes": [
+                {
+                    ":column": "ID",
+                    ":type": ":unary",
+                    ":target": "instance_id",
+                    ":width": 15,
+                    ":count": true
+                },
+                {
+                    ":column": "Type",
+                    ":type": ":unary",
+                    ":target": "instance_type",
+                    ":width": 15
+                },
+                {
+                    ":column": "State",
+                    ":type": ":unary",
+                    ":stub": "state",
+                    ":target": "name",
+                    ":width": 15
+                },
+                {
+                    ":column": "AZ",
+                    ":type": ":unary",
+                    ":stub": "placement",
+                    ":target": "availability_zone",
+                    ":width": 15
+                },
+                {
+                    ":column": "EBS Optimized?",
+                    ":type": ":unary",
+                    ":target": "ebs_optimized",
+                    ":width": 15
+                },
+                {
+                    ":column": "Tags",
+                    ":type": ":tags",
+                    ":stub": "tags",
+                    ":width": 60
+                }
+            ]
+        },
+        {
+            ":name": "EBS",
+            ":client": ":ec2",
+            ":describe_method": "describe_volumes",
+            ":collection": "volumes",
+            ":attributes": [
+                {
+                    ":column": "ID",
+                    ":type": ":unary",
+                    ":target": "volume_id",
+                    ":width": 15,
+                    ":count": true
+                },
+                {
+                    ":column": "Size (GB)",
+                    ":type": ":unary",
+                    ":target": "size",
+                    ":width": 15,
+                    ":sum": true
+                },
+                {
+                    ":column": "State",
+                    ":type": ":unary",
+                    ":target": "state",
+                    ":width": 15
+                },
+                {
+                    ":column": "Volume Type",
+                    ":type": ":unary",
+                    ":target": "volume_type",
+                    ":width": 15
+                },
+                {
+                    ":column": "IOPS",
+                    ":type": ":unary",
+                    ":target": "iops",
+                    ":width": 15,
+                    ":sum": true
+                },
+                {
+                    ":column": "Encrypted?",
+                    ":type": ":unary",
+                    ":target": "encrypted",
+                    ":width": 15
+                },
+                {
+                    ":column": "Attachments",
+                    ":type": ":list",
+                    ":stub": "attachments",
+                    ":target": "instance_id",
+                    ":width": 15
+                },
+                {
+                    ":column": "Device",
+                    ":type": ":list",
+                    ":stub": "attachments",
+                    ":target": "device",
+                    ":width": 15
+                },
+                {
+                    ":column": "Attach State",
+                    ":type": ":list",
+                    ":stub": "attachments",
+                    ":target": "state",
+                    ":width": 15
+                },
+                {
+                    ":column": "Tags",
+                    ":type": ":tags",
+                    ":stub": "tags",
+                    ":width": 60
+                }
+            ]
+        },
+        {
+            ":name": "VPC",
+            ":client": ":ec2",
+            ":describe_method": "describe_vpcs",
+            ":collection": "vpcs",
+            ":attributes": [
+                {
+                    ":column": "ID",
+                    ":type": ":unary",
+                    ":target": "vpc_id",
+                    ":width": 15,
+                    ":count": true
+                },
+                {
+                    ":column": "State",
+                    ":type": ":unary",
+                    ":target": "state",
+                    ":width": 15
+                },
+                {
+                    ":column": "CIDR",
+                    ":type": ":unary",
+                    ":target": "cidr_block",
+                    ":width": 15
+                },
+                {
+                    ":column": "Tenancy",
+                    ":type": ":unary",
+                    ":target": "instance_tenancy",
+                    ":width": 15
+                },
+                {
+                    ":column": "Default?",
+                    ":type": ":unary",
+                    ":target": "is_default",
+                    ":width": 15
+                },
+                {
+                    ":column": "Tags",
+                    ":type": ":tags",
+                    ":stub": "tags",
+                    ":width": 60
+                }
+            ]
+        }
+    ]
+}
