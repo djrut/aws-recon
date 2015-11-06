@@ -20,7 +20,6 @@ end
 def print_totals(args={})
   attributes = args[:attributes]
   totals = args[:totals]
-  puts "\n"  
 
   attributes.each {|attribute| printf "%-#{attribute[:width]}s", "-" * attribute[:column].size}
 
@@ -37,6 +36,7 @@ def print_totals(args={})
   end
   printf "\n"
   attributes.each {|attribute| printf "%-#{attribute[:width]}s","-" * attribute[:column].size}
+  printf "\n"
 end
 
 def print_data(args={})
@@ -149,23 +149,22 @@ print_section_header({title: section_name})
 print_column_labels({name: section_name, attributes: ebs_attributes})
 print_totals({attributes: ebs_attributes, totals: print_data({data: description.volumes, attributes: ebs_attributes})})
 
-## Show VPC summary data
-#
-#print_section_header("VPC")
-#print_column_labels(["VPC ID", "State", "CIDR", "Tenancy", "Default?", "Tags"])
-#
-#total_vpcs = 0
-#ec2.describe_vpcs.vpcs.each do |vpc|
-#   print_data([vpc.vpc_id,
-#               vpc.state,
-#               vpc.cidr_block,
-#               vpc.instance_tenancy,
-#               vpc.is_default,
-#               vpc.tags])
-#   total_vpcs += 1
-#end
-#
-#puts "\nTotal VPCs = #{total_vpcs}"
+###############################################################################
+# VPC
+###############################################################################
+section_name    = "VPC"
+vpc_attributes  = [ {column: "ID",              type: :unary,                     target: "vpc_id",        width: 15, count: true},
+                    {column: "State",           type: :unary,                     target: "state",            width: 15},
+                    {column: "CIDR",            type: :unary,                     target: "cidr_block",      width: 15},
+                    {column: "Tenancy",         type: :unary,                     target: "instance_tenancy",             width: 15},
+                    {column: "Default?",        type: :unary,                     target: "is_default",        width: 15},
+                    {column: "Tags",            type: :tags,  stub: "tags", width: 60}]
+
+description        = ec2_client.describe_vpcs
+
+print_section_header({title: section_name})
+print_column_labels({name: section_name, attributes: vpc_attributes})
+print_totals({attributes: vpc_attributes, totals: print_data({data: description.vpcs, attributes: vpc_attributes})})
 
 # Show ELB summary data
 #
