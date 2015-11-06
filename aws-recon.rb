@@ -28,7 +28,7 @@ def print_totals(args={})
 
   attributes.each do |attribute|
     if totals[attribute[:target]]
-      printf "%-#{attribute[:width]}s",totals[attribute[:target].to_sym] 
+      printf "%-#{attribute[:width]}s",totals[attribute[:target]] 
     else
       printf "%-#{attribute[:width]}s","-"
     end
@@ -78,8 +78,8 @@ def print_data(args={})
         printf "%-#{attribute[:width]}s", output.slice(0,attribute[:width]-1) unless output.nil?
 
         if attribute[:sum]
-          sum[attribute[:target].to_sym] = 0 if sum[attribute[:target].to_sym].nil?
-          sum[attribute[:target].to_sym] += output.to_i
+          sum[attribute[:target]] = 0 if sum[attribute[:target]].nil?
+          sum[attribute[:target]] += output.to_i
         end
       end
       i += 1
