@@ -27,14 +27,16 @@ def print_totals(args={})
   printf "\n"
 
   attributes.each do |attribute|
-    if totals[attribute[:target]]
+    if attribute[:count]
+      printf "%-#{attribute[:width]}s",totals[:count]
+    elsif totals[attribute[:target]]
       printf "%-#{attribute[:width]}s",totals[attribute[:target]] 
     else
-      printf "%-#{attribute[:width]}s","-"
+      printf "%-#{attribute[:width]}s","N/A"
     end
   end
   printf "\n"
-  attributes.each {|attribute| printf "%-#{attribute[:width]}s","N/A" * attribute[:column].size}
+  attributes.each {|attribute| printf "%-#{attribute[:width]}s","-" * attribute[:column].size}
 end
 
 def print_data(args={})
@@ -100,7 +102,7 @@ Aws.config.update({
 ###############################################################################
 
 section_name    = "EC2"
-ec2_attributes  = [ {column: "ID",              type: :unary,                     target: "instance_id",        width: 20},
+ec2_attributes  = [ {column: "ID",              type: :unary,                     target: "instance_id",        width: 20, count: true},
                     {column: "Type",            type: :unary,                     target: "instance_type",      width: 15},
                     {column: "State",           type: :unary, stub: "state",      target: "name",               width: 15},
                     {column: "AZ",              type: :unary, stub: "placement",  target: "availability_zone",  width: 15},
@@ -113,20 +115,24 @@ description        = ec2_client.describe_instances
 print_section_header({title: section_name})
 print_column_labels({name: section_name, attributes: ec2_attributes})
 
-total_rows=0
+total_rows = 0
+totals = {}
+
 description.reservations.each do |reservation|
   totals = print_data({data: reservation.instances, attributes: ec2_attributes}) 
   total_rows += totals[:count]
 end
 
-puts "\nTotal EC2 Instances = #{total_rows}\n"
+totals[:count] = total_rows
+
+print_totals({attributes: ec2_attributes, totals: totals })
 
 ###############################################################################
 # EBS
 ###############################################################################
 
 section_name    = "EBS"
-ebs_attributes  = [ {column: "ID",              type: :unary,                     target: "volume_id",        width: 15},
+ebs_attributes  = [ {column: "ID",              type: :unary,                     target: "volume_id",        width: 15, count: true},
                     {column: "Size (GB)",       type: :unary,                     target: "size",             width: 15, sum: true},
                     {column: "State",           type: :unary,                     target: "state",            width: 15},
                     {column: "Volume Type",     type: :unary,                     target: "volume_type",      width: 15},
@@ -141,12 +147,7 @@ description        = ec2_client.describe_volumes
 
 print_section_header({title: section_name})
 print_column_labels({name: section_name, attributes: ebs_attributes})
-
-totals = print_data({data: description.volumes, attributes: ebs_attributes}) 
-
-print_totals({attributes: ebs_attributes, totals: totals})
-
-puts "\nTotal EBS Volumes = #{totals[:count]}"
+print_totals({attributes: ebs_attributes, totals: print_data({data: description.volumes, attributes: ebs_attributes})})
 
 ## Show VPC summary data
 #
