@@ -17,6 +17,26 @@ def print_column_labels(args={})
   puts "\n" 
 end
 
+def print_totals(args={})
+  attributes = args[:attributes]
+  totals = args[:totals]
+  puts "\n"  
+
+  attributes.each {|attribute| printf "%-#{attribute[:width]}s", "-" * attribute[:column].size}
+
+  printf "\n"
+
+  attributes.each do |attribute|
+    if totals[attribute[:target]]
+      printf "%-#{attribute[:width]}s",totals[attribute[:target].to_sym] 
+    else
+      printf "%-#{attribute[:width]}s","-"
+    end
+  end
+  printf "\n"
+  attributes.each {|attribute| printf "%-#{attribute[:width]}s","N/A" * attribute[:column].size}
+end
+
 def print_data(args={})
   data   = args[:data]
   attributes = args[:attributes]
@@ -124,9 +144,9 @@ print_column_labels({name: section_name, attributes: ebs_attributes})
 
 totals = print_data({data: description.volumes, attributes: ebs_attributes}) 
 
+print_totals({attributes: ebs_attributes, totals: totals})
+
 puts "\nTotal EBS Volumes = #{totals[:count]}"
-puts "Total EBS Capacity (GB) = #{totals[:size]} GB"
-puts "Total EBS PIOPS = #{totals[:iops]} IOPS"
 
 ## Show VPC summary data
 #
