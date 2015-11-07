@@ -10,8 +10,8 @@ def print_section_header(args={})
 end
 
 def print_column_labels(args={})
-  name = args[:name]
-  attributes = args[:attributes]
+  name        = args[:name]
+  attributes  = args[:attributes]
   attributes.each {|attribute| printf "%-#{attribute[:width]}s", attribute[:column]}
   puts "\n"  
   attributes.each {|attribute| printf "%-#{attribute[:width]}s", "-" * attribute[:column].size}
@@ -19,8 +19,8 @@ def print_column_labels(args={})
 end
 
 def print_totals(args={})
-  attributes = args[:attributes]
-  totals = args[:totals]
+  attributes  = args[:attributes]
+  totals      = args[:totals]
 
   attributes.each {|attribute| printf "%-#{attribute[:width]}s", "-" * attribute[:column].size}
 
@@ -41,15 +41,15 @@ def print_totals(args={})
 end
 
 def print_data(args={})
-  data   = args[:data]
-  attributes = args[:attributes]
+  data        = args[:data]
+  attributes  = args[:attributes]
 
   sum = {}
   sum[:count] = 0
 
   data.each do |datum|
-    i = 0 
-    continue = true
+    i         = 0 
+    continue  = true
     while continue
       continue = false
       attributes.each do |attribute|
@@ -57,9 +57,9 @@ def print_data(args={})
         when :unary
           if i == 0  
             if attribute[:stub]
-              output = datum[attribute[:stub]].send(attribute[:target]).to_s
+              output = datum[attribute[:stub]][attribute[:target]]
             else
-              output = datum.send(attribute[:target]).to_s
+              output = datum[attribute[:target]]
             end
           else
             output = ""
@@ -73,12 +73,12 @@ def print_data(args={})
         when :list  
           item = datum[attribute[:stub]][i]
           if item
-             output = item.send(attribute[:target]).to_s
+             output = item[attribute[:target]]
              continue = true if i < datum[attribute[:stub]].size - 1
           end
         else
         end
-        printf "%-#{attribute[:width]}s", output.slice(0,attribute[:width]-1) unless output.nil?
+        printf "%-#{attribute[:width]}s", output.to_s.slice(0,attribute[:width]-1) unless output.nil?
 
         if attribute[:sum]
           sum[attribute[:target]] = 0 if sum[attribute[:target]].nil?
@@ -99,10 +99,11 @@ Aws.config.update({
 })
 
 # Populate hash with AWS SDK client objects
-clients = { ec2: Aws::EC2::Client.new }
+clients   = { ec2: Aws::EC2::Client.new,
+              elb: Aws::ElasticLoadBalancing::Client.new }
 
 # Load service definitions
-metadata = Oj.load_file("services.json")
+metadata  = Oj.load_file("services.json")
 
 # Main loop
 metadata[:services].each do |service|
@@ -115,8 +116,8 @@ metadata[:services].each do |service|
   print_section_header({title: section_name})
   print_column_labels({name: section_name, attributes: attributes})
 
-  total_rows = 0
-  totals = {}
+  total_rows  = 0
+  totals      = {}
 
   if section_name == "EC2"
     description.reservations.each do |reservation|
@@ -129,22 +130,3 @@ metadata[:services].each do |service|
   end
   print_totals({attributes: attributes, totals: totals })
 end
-
-# Show ELB summary data
-#
-#elb = Aws::ElasticLoadBalancing::Client.new
-#
-#print_section_header("ELB")
-#print_column_labels(["Name", "VPC", "Instances", "AZs", "Scheme"])
-#
-#total_elbs = 0
-#elb.describe_load_balancers.load_balancer_descriptions.each do |elb|
-#   print_data([elb.load_balancer_name,
-#               elb.vpc_id,
-#               elb.instances,
-#               elb.availability_zones,
-#               elb.scheme])
-#   total_elbs += 1
-#end
-#
-#puts "\nTotal ELBs = #{total_elbs}"

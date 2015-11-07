@@ -164,6 +164,62 @@
                     ":width": 60
                 }
             ]
+        },
+        {
+            ":name": "ELB",
+            ":client": ":elb",
+            ":describe_method": "describe_load_balancers",
+            ":collection": "load_balancer_descriptions",
+            ":attributes": [
+                {
+                    ":column": "Name",
+                    ":type": ":unary",
+                    ":target": "load_balancer_name",
+                    ":width": 30,
+                    ":count": true
+                },
+                {
+                    ":column": "VPC",
+                    ":type": ":unary",
+                    ":target": "vpc_id",
+                    ":width": 15
+                },
+                {
+                    ":column": "Instances",
+                    ":type": ":list",
+                    ":stub": "instances",
+                    ":target": "instance_id",
+                    ":width": 15
+                },
+                {
+                    ":column": "Listener Protocols",
+                    ":type": ":list",
+                    ":stub": "listener_descriptions",
+                    ":target": "listener.protocol",
+                    ":width": 15
+                },
+                {
+                    ":column": "Listener Ports",
+                    ":type": ":list",
+                    ":stub": "listener_descriptions",
+                    ":target": "listener.load_balancer_port",
+                    ":width": 15
+                },
+                {
+                    ":column": "Instance Protocols",
+                    ":type": ":list",
+                    ":stub": "listener_descriptions",
+                    ":target": "listener.instance_protocol",
+                    ":width": 15
+                },
+                {
+                    ":column": "Instance Ports",
+                    ":type": ":list",
+                    ":stub": "listener_descriptions",
+                    ":target": "listener.instance_port",
+                    ":width": 15
+                }
+            ]
         }
     ]
 }
