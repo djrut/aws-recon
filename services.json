@@ -47,6 +47,81 @@
             ]
         },
         {
+            ":name": "Reserved Instances",
+            ":client": ":ec2",
+            ":describe_method": "describe_reserved_instances",
+            ":collection": "reserved_instances",
+            ":attributes": [
+                {
+                    ":column": "ID",
+                    ":type": ":unary",
+                    ":target": "reserved_instances_id",
+                    ":width": 15,
+                    ":count": true
+                },
+                {
+                    ":column": "Type",
+                    ":type": ":unary",
+                    ":target": "instance_type",
+                    ":width": 15
+                },
+                {
+                    ":column": "Instances",
+                    ":type": ":unary",
+                    ":target": "instance_count",
+                    ":width": 15
+                },
+                {
+                    ":column": "State",
+                    ":type": ":unary",
+                    ":target": "name",
+                    ":width": 15
+                },
+                {
+                    ":column": "AZ",
+                    ":type": ":unary",
+                    ":target": "availability_zone",
+                    ":width": 15
+                },
+                {
+                    ":column": "Start",
+                    ":type": ":unary",
+                    ":target": "start",
+                    ":width": 10
+                },
+                {
+                    ":column": "End",
+                    ":type": ":unary",
+                    ":target": "end",
+                    ":width": 10
+                },
+                {
+                    ":column": "Duration",
+                    ":type": ":unary",
+                    ":target": "duration",
+                    ":width": 10
+                },
+                {
+                    ":column": "Usage $",
+                    ":type": ":unary",
+                    ":target": "usage_price",
+                    ":width": 10
+                },
+                {
+                    ":column": "Fixed $",
+                    ":type": ":unary",
+                    ":target": "fixed_price",
+                    ":width": 10
+                },
+                {
+                    ":column": "Tags",
+                    ":type": ":tags",
+                    ":stub": "tags",
+                    ":width": 60
+                }
+            ]
+        },
+        {
             ":name": "EBS",
             ":client": ":ec2",
             ":describe_method": "describe_volumes",
@@ -94,21 +169,21 @@
                 {
                     ":column": "Attachments",
                     ":type": ":list",
-                    ":stub": "attachments",
+                    ":collection": "attachments",
                     ":target": "instance_id",
                     ":width": 15
                 },
                 {
                     ":column": "Device",
                     ":type": ":list",
-                    ":stub": "attachments",
+                    ":collection": "attachments",
                     ":target": "device",
                     ":width": 15
                 },
                 {
                     ":column": "Attach State",
                     ":type": ":list",
-                    ":stub": "attachments",
+                    ":collection": "attachments",
                     ":target": "state",
                     ":width": 15
                 },
@@ -175,8 +250,14 @@
                     ":column": "Name",
                     ":type": ":unary",
                     ":target": "load_balancer_name",
-                    ":width": 30,
+                    ":width": 40,
                     ":count": true
+                },
+                {
+                    ":column": "Scheme",
+                    ":type": ":unary",
+                    ":target": "scheme",
+                    ":width": 20
                 },
                 {
                     ":column": "VPC",
@@ -187,37 +268,41 @@
                 {
                     ":column": "Instances",
                     ":type": ":list",
-                    ":stub": "instances",
+                    ":collection": "instances",
                     ":target": "instance_id",
                     ":width": 15
                 },
                 {
-                    ":column": "Listener Protocols",
+                    ":column": "F/E Proto",
                     ":type": ":list",
-                    ":stub": "listener_descriptions",
-                    ":target": "listener.protocol",
-                    ":width": 15
+                    ":collection": "listener_descriptions",
+                    ":stub": "listener",
+                    ":target": "protocol",
+                    ":width": 10
                 },
                 {
-                    ":column": "Listener Ports",
+                    ":column": "F/E Port",
                     ":type": ":list",
-                    ":stub": "listener_descriptions",
-                    ":target": "listener.load_balancer_port",
-                    ":width": 15
+                    ":collection": "listener_descriptions",
+                    ":stub": "listener",
+                    ":target": "load_balancer_port",
+                    ":width": 10
                 },
                 {
-                    ":column": "Instance Protocols",
+                    ":column": "B/E Proto",
                     ":type": ":list",
-                    ":stub": "listener_descriptions",
-                    ":target": "listener.instance_protocol",
-                    ":width": 15
+                    ":collection": "listener_descriptions",
+                    ":stub": "listener",
+                    ":target": "instance_protocol",
+                    ":width": 10
                 },
                 {
-                    ":column": "Instance Ports",
+                    ":column": "B/E Port",
                     ":type": ":list",
-                    ":stub": "listener_descriptions",
-                    ":target": "listener.instance_port",
-                    ":width": 15
+                    ":collection": "listener_descriptions",
+                    ":stub": "listener",
+                    ":target": "instance_port",
+                    ":width": 10
                 }
             ]
         }

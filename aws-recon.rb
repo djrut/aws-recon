@@ -55,7 +55,7 @@ def print_data(args={})
       attributes.each do |attribute|
         case attribute[:type]
         when :unary
-          if i == 0  
+          if i.zero?
             if attribute[:stub]
               output = datum[attribute[:stub]][attribute[:target]]
             else
@@ -71,10 +71,14 @@ def print_data(args={})
              continue = true if i < datum[attribute[:stub]].size - 1
           end
         when :list  
-          item = datum[attribute[:stub]][i]
+          item = datum[attribute[:collection]][i]
           if item
-             output = item[attribute[:target]]
-             continue = true if i < datum[attribute[:stub]].size - 1
+            if attribute[:stub]
+              output = item[attribute[:stub]][attribute[:target]]
+            else
+              output = item[attribute[:target]]
+            end
+            continue = true if i < datum[attribute[:collection]].size - 1
           end
         else
         end
