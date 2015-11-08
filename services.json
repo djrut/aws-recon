@@ -4,6 +4,7 @@
             ":name": "EC2",
             ":client": ":ec2",
             ":describe_method": "describe_instances",
+            ":collection": "reservations",
             ":attributes": [
                 {
                     ":column": "ID",

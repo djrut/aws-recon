@@ -2,20 +2,25 @@ require 'aws-sdk'
 require 'oj'
 
 def print_section_header(args={})
-  title      = args[:title]
+  title   = args[:title]
+  status  = args[:status]    
   printf "\n"
-  printf "==============================\n"
-  printf "= Summary for: #{title}\n"
-  printf "==============================\n"
+  if status
+    printf "= SUMMARY for: %-20s\n",title
+  else
+    printf "= NO DATA for: %-20s\n",title
+  end
+  printf "==============\n"
 end
 
 def print_column_labels(args={})
   name        = args[:name]
   attributes  = args[:attributes]
+  printf "\n"
   attributes.each {|attribute| printf "%-#{attribute[:width]}s", attribute[:column]}
-  puts "\n"  
+  printf "\n"
   attributes.each {|attribute| printf "%-#{attribute[:width]}s", "-" * attribute[:column].size}
-  puts "\n" 
+  printf "\n"
 end
 
 def print_totals(args={})
@@ -82,7 +87,7 @@ def print_data(args={})
           end
         else
         end
-        printf "%-#{attribute[:width]}s", output.to_s.slice(0,attribute[:width]-1) unless output.nil?
+        printf "%-#{attribute[:width]}s", output.to_s.slice(0,attribute[:width]-1)
 
         if attribute[:sum]
           sum[attribute[:target]] = 0 if sum[attribute[:target]].nil?
@@ -117,20 +122,24 @@ metadata[:services].each do |service|
   client          = clients[service[:client]]
   description     = client.send(service[:describe_method])
 
-  print_section_header({title: section_name})
-  print_column_labels({name: section_name, attributes: attributes})
+  if description[collection].any?
+    print_section_header({status: true, title: section_name})
+    print_column_labels({name: section_name, attributes: attributes})
 
-  total_rows  = 0
-  totals      = {}
+    total_rows  = 0
+    totals      = {}
 
-  if section_name == "EC2"
-    description.reservations.each do |reservation|
-      totals = print_data({data: reservation.instances, attributes: attributes}) 
-      total_rows += totals[:count]
+    if section_name == "EC2"
+      description.reservations.each do |reservation|
+        totals = print_data({data: reservation.instances, attributes: attributes}) 
+        total_rows += totals[:count]
+      end
+      totals[:count] = total_rows
+    else
+      totals = print_data({data: description[collection], attributes: attributes}) 
     end
-    totals[:count] = total_rows
+    print_totals({attributes: attributes, totals: totals })
   else
-    totals = print_data({data: description.send(collection), attributes: attributes}) 
+    print_section_header({status: false, title: section_name})
   end
-  print_totals({attributes: attributes, totals: totals })
 end
