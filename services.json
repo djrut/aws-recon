@@ -306,6 +306,70 @@
                     ":width": 10
                 }
             ]
+        },
+        {
+            ":name": "RDS",
+            ":client": ":rds",
+            ":describe_method": "describe_db_instances",
+            ":collection": "db_instances",
+            ":attributes": [
+                {
+                    ":column": "ID",
+                    ":type": ":unary",
+                    ":target": "db_instance_identifier",
+                    ":width": 15,
+                    ":count": true
+                },
+                {
+                    ":column": "Class",
+                    ":type": ":unary",
+                    ":target": "db_instance_class",
+                    ":width": 15
+                },
+                {
+                    ":column": "Engine",
+                    ":type": ":unary",
+                    ":target": "engine",
+                    ":width": 15
+                },
+                {
+                    ":column": "Version",
+                    ":type": ":unary",
+                    ":target": "engine_version",
+                    ":width": 15
+                },
+                {
+                    ":column": "DB Name",
+                    ":type": ":unary",
+                    ":target": "db_name",
+                    ":width": 15
+                },
+                {
+                    ":column": "Multi AZ?",
+                    ":type": ":unary",
+                    ":target": "multi_az",
+                    ":width": 15
+                },
+                {
+                    ":column": "Storage Type",
+                    ":type": ":unary",
+                    ":target": "storage_type",
+                    ":width": 15
+                },
+                {
+                    ":column": "IOPS",
+                    ":type": ":unary",
+                    ":target": "iops",
+                    ":width": 15,
+                    ":sum": true
+                },
+                {
+                    ":column": "Storage Encrypted?",
+                    ":type": ":unary",
+                    ":target": "storage_encrypted",
+                    ":width": 15
+                }
+            ]
         }
     ]
 }

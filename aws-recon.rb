@@ -109,7 +109,9 @@ Aws.config.update({
 
 # Populate hash with AWS SDK client objects
 clients   = { ec2: Aws::EC2::Client.new,
-              elb: Aws::ElasticLoadBalancing::Client.new }
+              elb: Aws::ElasticLoadBalancing::Client.new,
+              rds: Aws::RDS::Client.new
+}
 
 # Load service definitions
 metadata  = Oj.load_file("services.json")
