@@ -321,6 +321,12 @@
                     ":count": true
                 },
                 {
+                    ":column": "Status",
+                    ":type": ":unary",
+                    ":target": "db_instance_status",
+                    ":width": 15
+                },
+                {
                     ":column": "Class",
                     ":type": ":unary",
                     ":target": "db_instance_class",
@@ -339,12 +345,6 @@
                     ":width": 15
                 },
                 {
-                    ":column": "DB Name",
-                    ":type": ":unary",
-                    ":target": "db_name",
-                    ":width": 15
-                },
-                {
                     ":column": "Multi AZ?",
                     ":type": ":unary",
                     ":target": "multi_az",
@@ -357,14 +357,21 @@
                     ":width": 15
                 },
                 {
-                    ":column": "IOPS",
+                    ":column": "Allocated GB",
                     ":type": ":unary",
-                    ":target": "iops",
+                    ":target": "allocated_storage",
                     ":width": 15,
                     ":sum": true
                 },
                 {
-                    ":column": "Storage Encrypted?",
+                    ":column": "IOPS",
+                    ":type": ":unary",
+                    ":target": "iops",
+                    ":width": 10,
+                    ":sum": true
+                },
+                {
+                    ":column": "Encrypted?",
                     ":type": ":unary",
                     ":target": "storage_encrypted",
                     ":width": 15
