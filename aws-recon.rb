@@ -1,5 +1,18 @@
-require 'aws-sdk'
+#!/usr/bin/env ruby
+require 'aws-sdk-core'
+require 'trollop'
 require 'oj'
+
+opts = Trollop::options do
+  version "aws-recon v0.1 (c) 2015 Duncan Rutland"
+  opt :region, "AWS Region to perform scan on", short: "-r", type: String, required: true
+  opt :config, "Specify alternative configuration file", short: "-c", default: "services.json", type: String
+  opt :role, "ARN for role to assume", short: "-R", type: String
+  opt :extid, "External ID for STS Assume Role", short: "-x", type: String
+  depends :role, :extid
+end
+
+Trollop::die :config, "must exist" unless File.exist?(opts[:config]) if opts[:config]
 
 def print_section_header(args={})
   title   = args[:title]
@@ -102,10 +115,16 @@ def print_data(args={})
   return sum
 end
 
-Aws.config.update({
-  region: "us-west-2",
-  credentials: Aws::SharedCredentials.new(profile_name: "default"),
-})
+# Set region and credentials
+Aws.config.update({region: opts[:region]})
+
+if opts[:role] then
+  creds = Aws::AssumeRoleCredentials.new({  role_arn: opts[:role], role_session_name: "aws-recon", external_id: opts[:extid]})
+else
+  creds = Aws::SharedCredentials.new(profile_name: "default")
+end
+
+Aws.config.update({credentials: creds})
 
 # Populate hash with AWS SDK client objects
 clients   = { ec2: Aws::EC2::Client.new,
