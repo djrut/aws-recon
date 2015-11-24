@@ -317,7 +317,7 @@
                     ":column": "ID",
                     ":type": ":unary",
                     ":target": "db_instance_identifier",
-                    ":width": 15,
+                    ":width": 30,
                     ":count": true
                 },
                 {
@@ -374,6 +374,86 @@
                     ":column": "Encrypted?",
                     ":type": ":unary",
                     ":target": "storage_encrypted",
+                    ":width": 15
+                }
+            ]
+        },
+        {
+            ":name": "ElastiCache Clusters",
+            ":client": ":elasticache",
+            ":describe_method": "describe_cache_clusters",
+            ":collection": "cache_clusters",
+            ":attributes": [
+                {
+                    ":column": "ID",
+                    ":type": ":unary",
+                    ":target": "cache_cluster_id",
+                    ":width": 20,
+                    ":count": true
+                },
+                {
+                    ":column": "Type",
+                    ":type": ":unary",
+                    ":target": "cache_node_type",
+                    ":width": 10
+                },
+                {
+                    ":column": "Engine",
+                    ":type": ":unary",
+                    ":target": "engine",
+                    ":width": 10
+                },
+                {
+                    ":column": "Version",
+                    ":type": ":unary",
+                    ":target": "engine_version",
+                    ":width": 10
+                },
+                {
+                    ":column": "Status",
+                    ":type": ":unary",
+                    ":target": "cache_cluster_status",
+                    ":width": 15
+                },
+                {
+                    ":column": "Node count",
+                    ":type": ":unary",
+                    ":target": "num_cache_nodes",
+                    ":width": 10,
+                    ":count": true
+                },
+                {
+                    ":column": "Replication Group",
+                    ":type": ":unary",
+                    ":target": "replication_group_id",
+                    ":width": 20
+                },
+                {
+                    ":column": "Node ID",
+                    ":type": ":list",
+                    ":collection": "cache_nodes",
+                    ":target": "cache_node_id",
+                    ":width": 10
+                },
+                {
+                    ":column": "Node Status",
+                    ":type": ":list",
+                    ":collection": "cache_nodes",
+                    ":target": "cache_node_status",
+                    ":width": 10
+                },
+                {
+                    ":column": "Created",
+                    ":type": ":list",
+                    ":collection": "cache_nodes",
+                    ":target": "cache_node_create_time",
+                    ":width": 15
+                },
+                {
+                    ":column": "Source node",
+                    ":type": ":list",
+                    ":collection": "cache_nodes",
+                    ":target": "source_cache_node_id",
                     ":width": 15
                 }
             ]

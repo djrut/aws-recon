@@ -3,6 +3,7 @@ require 'aws-sdk-core'
 require 'trollop'
 require 'oj'
 
+# Parse options
 opts = Trollop::options do
   version "aws-recon v0.1 (c) 2015 Duncan Rutland"
   opt :region, "AWS Region to perform scan on", short: "-r", type: String, required: true
@@ -16,6 +17,33 @@ opts = Trollop::options do
 end
 
 Trollop::die :config, "must exist" unless File.exist?(opts[:config]) if opts[:config]
+
+# Set region
+Aws.config.update({region: opts[:region]})
+
+# Determine whether we are using role assumption or local .aws/credentials profile
+if opts[:role] then
+  creds = Aws::AssumeRoleCredentials.new({role_arn: opts[:role], role_session_name: "aws-recon", external_id: opts[:extid]})
+elsif opts[:profile] then
+  creds = Aws::SharedCredentials.new(profile_name: opts[:profile])
+else
+  creds = Aws::SharedCredentials.new(profile_name: "default")
+end
+
+# Apply appropriate credentials configuration
+Aws.config.update({credentials: creds})
+
+# Populate hash with AWS SDK client objects
+clients   = { ec2: Aws::EC2::Client.new,
+              elb: Aws::ElasticLoadBalancing::Client.new,
+              rds: Aws::RDS::Client.new,
+              elasticache: Aws::ElastiCache::Client.new
+}
+
+# Load service definitions
+metadata  = Oj.load_file("services.json")
+
+# Function definitions
 
 def print_section_header(args={})
   title   = args[:title]
@@ -117,28 +145,6 @@ def print_data(args={})
   end
   return sum
 end
-
-# Set region and credentials
-Aws.config.update({region: opts[:region]})
-
-if opts[:role] then
-  creds = Aws::AssumeRoleCredentials.new({  role_arn: opts[:role], role_session_name: "aws-recon", external_id: opts[:extid]})
-elsif opts[:profile] then
-  creds = Aws::SharedCredentials.new(profile_name: opts[:profile])
-else
-  creds = Aws::SharedCredentials.new(profile_name: "default")
-end
-
-Aws.config.update({credentials: creds})
-
-# Populate hash with AWS SDK client objects
-clients   = { ec2: Aws::EC2::Client.new,
-              elb: Aws::ElasticLoadBalancing::Client.new,
-              rds: Aws::RDS::Client.new
-}
-
-# Load service definitions
-metadata  = Oj.load_file("services.json")
 
 # Main loop
 metadata[:services].each do |service|
