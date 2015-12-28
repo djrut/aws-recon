@@ -1,460 +1,159 @@
 {
     ":services": [
         {
-            ":name":        "EC2",
-            ":client": ":ec2",
-            ":describe_method": "describe_instances",
-            ":collection": "reservations",
-            ":attributes": [
-                {
-                    ":column": "ID",
-                    ":type": ":unary",
-                    ":target": "instance_id",
-                    ":width": 15,
-                    ":count": true
-                },
-                {
-                    ":column": "Type",
-                    ":type": ":unary",
-                    ":target": "instance_type",
-                    ":width": 15
-                },
-                {
-                    ":column": "State",
-                    ":type": ":unary",
-                    ":stub": "state",
-                    ":target": "name",
-                    ":width": 15
-                },
-                {
-                    ":column": "AZ",
-                    ":type": ":unary",
-                    ":stub": "placement",
-                    ":target": "availability_zone",
-                    ":width": 15
-                },
-                {
-                    ":column": "EBS Optimized?",
-                    ":type": ":unary",
-                    ":target": "ebs_optimized",
-                    ":width": 15
-                },
-                {
-                    ":column": "Tags",
-                    ":type": ":tags",
-                    ":stub": "tags",
-                    ":width": 60
-                }
-            ]
-        },
-        {
-            ":name": "Reserved Instances",
-            ":client": ":ec2",
-            ":describe_method": "describe_reserved_instances",
-            ":collection": "reserved_instances",
-            ":attributes": [
-                {
-                    ":column": "ID",
-                    ":type": ":unary",
-                    ":target": "reserved_instances_id",
-                    ":width": 15,
-                    ":count": true
-                },
-                {
-                    ":column": "Type",
-                    ":type": ":unary",
-                    ":target": "instance_type",
-                    ":width": 15
-                },
-                {
-                    ":column": "Instances",
-                    ":type": ":unary",
-                    ":target": "instance_count",
-                    ":width": 15
-                },
-                {
-                    ":column": "State",
-                    ":type": ":unary",
-                    ":target": "name",
-                    ":width": 15
-                },
-                {
-                    ":column": "AZ",
-                    ":type": ":unary",
-                    ":target": "availability_zone",
-                    ":width": 15
-                },
-                {
-                    ":column": "Start",
-                    ":type": ":unary",
-                    ":target": "start",
-                    ":width": 10
-                },
-                {
-                    ":column": "End",
-                    ":type": ":unary",
-                    ":target": "end",
-                    ":width": 10
-                },
-                {
-                    ":column": "Duration",
-                    ":type": ":unary",
-                    ":target": "duration",
-                    ":width": 10
-                },
-                {
-                    ":column": "Usage $",
-                    ":type": ":unary",
-                    ":target": "usage_price",
-                    ":width": 10
-                },
-                {
-                    ":column": "Fixed $",
-                    ":type": ":unary",
-                    ":target": "fixed_price",
-                    ":width": 10
-                },
-                {
-                    ":column": "Tags",
-                    ":type": ":tags",
-                    ":stub": "tags",
-                    ":width": 60
-                }
-            ]
-        },
-        {
-            ":name": "EBS",
-            ":client": ":ec2",
-            ":describe_method": "describe_volumes",
-            ":collection": "volumes",
-            ":attributes": [
-                {
-                    ":column": "ID",
-                    ":type": ":unary",
-                    ":target": "volume_id",
-                    ":width": 15,
-                    ":count": true
-                },
-                {
-                    ":column": "Size (GB)",
-                    ":type": ":unary",
-                    ":target": "size",
-                    ":width": 15,
-                    ":sum": true
-                },
-                {
-                    ":column": "State",
-                    ":type": ":unary",
-                    ":target": "state",
-                    ":width": 15
-                },
-                {
-                    ":column": "Volume Type",
-                    ":type": ":unary",
-                    ":target": "volume_type",
-                    ":width": 15
-                },
-                {
-                    ":column": "IOPS",
-                    ":type": ":unary",
-                    ":target": "iops",
-                    ":width": 15,
-                    ":sum": true
-                },
-                {
-                    ":column": "Encrypted?",
-                    ":type": ":unary",
-                    ":target": "encrypted",
-                    ":width": 15
-                },
-                {
-                    ":column": "Attachments",
-                    ":type": ":list",
-                    ":collection": "attachments",
-                    ":target": "instance_id",
-                    ":width": 15
-                },
-                {
-                    ":column": "Device",
-                    ":type": ":list",
-                    ":collection": "attachments",
-                    ":target": "device",
-                    ":width": 15
-                },
-                {
-                    ":column": "Attach State",
-                    ":type": ":list",
-                    ":collection": "attachments",
-                    ":target": "state",
-                    ":width": 15
-                },
-                {
-                    ":column": "Tags",
-                    ":type": ":tags",
-                    ":stub": "tags",
-                    ":width": 60
-                }
-            ]
-        },
-        {
-            ":name": "VPC",
-            ":client": ":ec2",
-            ":describe_method": "describe_vpcs",
-            ":collection": "vpcs",
-            ":attributes": [
-                {
-                    ":column": "ID",
-                    ":type": ":unary",
-                    ":target": "vpc_id",
-                    ":width": 15,
-                    ":count": true
-                },
-                {
-                    ":column": "State",
-                    ":type": ":unary",
-                    ":target": "state",
-                    ":width": 15
-                },
-                {
-                    ":column": "CIDR",
-                    ":type": ":unary",
-                    ":target": "cidr_block",
-                    ":width": 15
-                },
-                {
-                    ":column": "Tenancy",
-                    ":type": ":unary",
-                    ":target": "instance_tenancy",
-                    ":width": 15
-                },
-                {
-                    ":column": "Default?",
-                    ":type": ":unary",
-                    ":target": "is_default",
-                    ":width": 15
-                },
-                {
-                    ":column": "Tags",
-                    ":type": ":tags",
-                    ":stub": "tags",
-                    ":width": 60
-                }
-            ]
-        },
-        {
-            ":name": "ELB",
-            ":client": ":elb",
-            ":describe_method": "describe_load_balancers",
-            ":collection": "load_balancer_descriptions",
-            ":attributes": [
-                {
-                    ":column": "Name",
-                    ":type": ":unary",
-                    ":target": "load_balancer_name",
-                    ":width": 40,
-                    ":count": true
-                },
-                {
-                    ":column": "Scheme",
-                    ":type": ":unary",
-                    ":target": "scheme",
-                    ":width": 20
-                },
-                {
-                    ":column": "VPC",
-                    ":type": ":unary",
-                    ":target": "vpc_id",
-                    ":width": 15
-                },
-                {
-                    ":column": "Instances",
-                    ":type": ":list",
-                    ":collection": "instances",
-                    ":target": "instance_id",
-                    ":width": 15
-                },
-                {
-                    ":column": "F/E Proto",
-                    ":type": ":list",
-                    ":collection": "listener_descriptions",
-                    ":stub": "listener",
-                    ":target": "protocol",
-                    ":width": 10
-                },
-                {
-                    ":column": "F/E Port",
-                    ":type": ":list",
-                    ":collection": "listener_descriptions",
-                    ":stub": "listener",
-                    ":target": "load_balancer_port",
-                    ":width": 10
-                },
-                {
-                    ":column": "B/E Proto",
-                    ":type": ":list",
-                    ":collection": "listener_descriptions",
-                    ":stub": "listener",
-                    ":target": "instance_protocol",
-                    ":width": 10
-                },
-                {
-                    ":column": "B/E Port",
-                    ":type": ":list",
-                    ":collection": "listener_descriptions",
-                    ":stub": "listener",
-                    ":target": "instance_port",
-                    ":width": 10
-                }
-            ]
-        },
-        {
-            ":name": "RDS",
-            ":client": ":rds",
-            ":describe_method": "describe_db_instances",
-            ":collection": "db_instances",
-            ":attributes": [
-                {
-                    ":column": "ID",
-                    ":type": ":unary",
-                    ":target": "db_instance_identifier",
-                    ":width": 30,
-                    ":count": true
-                },
-                {
-                    ":column": "Status",
-                    ":type": ":unary",
-                    ":target": "db_instance_status",
-                    ":width": 15
-                },
-                {
-                    ":column": "Class",
-                    ":type": ":unary",
-                    ":target": "db_instance_class",
-                    ":width": 15
-                },
-                {
-                    ":column": "Engine",
-                    ":type": ":unary",
-                    ":target": "engine",
-                    ":width": 15
-                },
-                {
-                    ":column": "Version",
-                    ":type": ":unary",
-                    ":target": "engine_version",
-                    ":width": 15
-                },
-                {
-                    ":column": "Multi AZ?",
-                    ":type": ":unary",
-                    ":target": "multi_az",
-                    ":width": 15
-                },
-                {
-                    ":column": "Storage Type",
-                    ":type": ":unary",
-                    ":target": "storage_type",
-                    ":width": 15
-                },
-                {
-                    ":column": "Allocated GB",
-                    ":type": ":unary",
-                    ":target": "allocated_storage",
-                    ":width": 15,
-                    ":sum": true
-                },
-                {
-                    ":column": "IOPS",
-                    ":type": ":unary",
-                    ":target": "iops",
-                    ":width": 10,
-                    ":sum": true
-                },
-                {
-                    ":column": "Encrypted?",
-                    ":type": ":unary",
-                    ":target": "storage_encrypted",
-                    ":width": 15
-                }
-            ]
-        },
-        {
             ":name": "ElastiCache Clusters",
             ":client": ":elasticache",
             ":describe_method": "describe_cache_clusters",
             ":collection": "cache_clusters",
             ":attributes": [
                 {
-                    ":column": "ID",
-                    ":type": ":unary",
+                    ":column_name": "ID",
+                    ":type": ":scalar",
                     ":target": "cache_cluster_id",
-                    ":width": 20,
+                    ":column_width": 20,
                     ":count": true
                 },
                 {
-                    ":column": "Type",
-                    ":type": ":unary",
+                    ":column_name": "Type",
+                    ":type": ":scalar",
                     ":target": "cache_node_type",
-                    ":width": 10
+                    ":column_width": 10
                 },
                 {
-                    ":column": "Engine",
-                    ":type": ":unary",
+                    ":column_name": "Engine",
+                    ":type": ":scalar",
                     ":target": "engine",
-                    ":width": 10
+                    ":column_width": 10
                 },
                 {
-                    ":column": "Version",
-                    ":type": ":unary",
+                    ":column_name": "Version",
+                    ":type": ":scalar",
                     ":target": "engine_version",
-                    ":width": 10
+                    ":column_width": 10
                 },
                 {
-                    ":column": "Status",
-                    ":type": ":unary",
+                    ":column_name": "Status",
+                    ":type": ":scalar",
                     ":target": "cache_cluster_status",
-                    ":width": 15
+                    ":column_width": 15
                 },
                 {
-                    ":column": "Node count",
-                    ":type": ":unary",
+                    ":column_name": "Node count",
+                    ":type": ":scalar",
                     ":target": "num_cache_nodes",
-                    ":width": 10,
+                    ":column_width": 10,
                     ":count": true
                 },
                 {
-                    ":column": "Replication Group",
-                    ":type": ":unary",
+                    ":column_name": "Replication Group",
+                    ":type": ":scalar",
                     ":target": "replication_group_id",
-                    ":width": 20
+                    ":column_width": 20
                 },
                 {
-                    ":column": "Node ID",
+                    ":column_name": "Node ID",
                     ":type": ":list",
                     ":collection": "cache_nodes",
                     ":target": "cache_node_id",
-                    ":width": 10
+                    ":column_width": 10
                 },
                 {
-                    ":column": "Node Status",
+                    ":column_name": "Node Status",
                     ":type": ":list",
                     ":collection": "cache_nodes",
                     ":target": "cache_node_status",
-                    ":width": 10
+                    ":column_width": 10
                 },
                 {
-                    ":column": "Created",
+                    ":column_name": "Created",
                     ":type": ":list",
                     ":collection": "cache_nodes",
                     ":target": "cache_node_create_time",
-                    ":width": 15
+                    ":column_width": 15
                 },
                 {
-                    ":column": "Source node",
+                    ":column_name": "Source node",
                     ":type": ":list",
                     ":collection": "cache_nodes",
                     ":target": "source_cache_node_id",
-                    ":width": 15
+                    ":column_width": 15
+                }
+            ]
+        },
+        {
+            ":name": "ElastiCache Replication Groups",
+            ":client": ":elasticache",
+            ":describe_method": "describe_replication_groups",
+            ":collection": "replication_groups",
+            ":attributes": [
+                {
+                    ":type": ":scalar",
+                    ":column_name": "ID",
+                    ":target": "replication_group_id",
+                    ":column_width": 20,
+                    ":count": true
+                },
+                {
+                    ":type": ":scalar",
+                    ":column_name": "Status",
+                    ":target": "status",
+                    ":column_width": 15
+                },
+                {
+                    ":type": ":scalar",
+                    ":column_name": "Description",
+                    ":target": "description",
+                    ":column_width": 15
+                },
+                {
+                    ":type": ":scalar",
+                    ":column_name": "Automatic Failover",
+                    ":target": "automatic_failover",
+                    ":column_width": 15
+                },
+                {
+                    ":type": ":array",
+                    ":name": "Node Groups",
+                    ":collection": "node_groups",
+                    ":attributes": [
+                      {
+                          ":type": ":scalar",
+                          ":column_name": "ID",
+                          ":target": "node_group_id",
+                          ":column_width": 15
+                      },
+                      {
+                          ":type": ":scalar",
+                          ":column_name": "Status",
+                          ":target": "status",
+                          ":column_width": 15
+                      },
+                      {
+                          ":type": ":array",
+                          ":name": "Node Group Members",
+                          ":collection": "node_group_members",
+                          ":attributes": [
+                            {
+                                ":type": ":scalar",
+                                ":column_name": "Cluster ID",
+                                ":target": "cache_cluster_id",
+                                ":column_width": 15
+                            },
+                            {
+                                ":type": ":scalar",
+                                ":column_name": "Node ID",
+                                ":target": "cache_node_id",
+                                ":column_width": 15
+                            },
+                            {
+                                ":type": ":scalar",
+                                ":column_name": "Current Role",
+                                ":target": "current_role",
+                                ":column_width": 15
+                            }
+                          ]
+                      }
+                    ]
                 }
             ]
         }
