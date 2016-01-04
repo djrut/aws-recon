@@ -3,6 +3,9 @@ require 'aws-sdk-core'
 require 'trollop'
 require 'oj'
 
+# Constants
+DEBUG = false
+
 class AWSService
   attr_accessor :name, :attributes, :describe_output, :totals
 
@@ -43,11 +46,6 @@ class AWSService
     end
   end
 
-  def set_column_labels(args={})
-    table   = args[:table]
-    @attributes.each {|attribute| table.header.push(attribute[:column_name])}
-  end
-
   def set_totals(args={})
     table  = args[:table]  
 
@@ -64,7 +62,7 @@ class AWSService
 end
 
 class Table
-  attr_accessor :title, :header, :footer
+  attr_accessor :title, :header, :footer, :tabs
   MAX_ROWS = 128
 
   def initialize(args={})
@@ -75,6 +73,7 @@ class Table
     @tail   = 0
     @title  = "Empty table"
     @header = Array.new
+    @tabs   = Array.new
     @footer = Array.new
     @matrix = Array.new(@num_rows) { Array.new }
   end
@@ -86,12 +85,16 @@ class Table
   def next_row
     @row += 1
     @tail = [@row,@tail].max
+    puts "[DEBUG] Table.next_row: setting row = #{@row} tail = #{@tail}" if DEBUG 
   end
 
   def new_row
+    puts "[DEBUG] Table.new_row: old head = #{@head} old tail = #{@tail}" if DEBUG
     @head = @tail + 1
     @row  = @head
+    @tail = @head
     @col  = 0
+    puts "[DEBUG] Table.new_row: new head = #{@head} new tail = #{@tail}" if DEBUG
   end
 
   def reset_row
@@ -99,7 +102,7 @@ class Table
   end
 
   def push(args={})
-    puts "DEBUG [Table.push]: data = #{args[:data]}, row = #{@row}, col = #{@col}"
+    puts "DEBUG [Table.push]: data = #{args[:data]}, row = #{@row}, col = #{@col}" if DEBUG
     @matrix[@row][@col] = args[:data]
   end
 
@@ -108,11 +111,38 @@ class Table
   end
 
   def render
-    puts @title
-    puts @header.join(",") 
-    @matrix.each {|item| puts item.join(",") if !item.empty?}
-    puts @footer.join(",")
-    puts "\n"
+    printf "\n"
+    printf @title
+
+    printf "\n"
+    @tabs.each_with_index do |tab,index|
+      printf "%-#{tab}s", @header[index]
+    end
+
+    printf "\n"
+    @tabs.each_with_index do |tab,index|
+      printf "%-#{tab}s", "-" * @header[index].size
+    end
+
+    printf "\n"
+    @matrix.each do |row|
+      if !row.empty?
+        @tabs.each_with_index do |tab, index|
+          printf "%-#{tab}s", row[index]
+        end
+        printf "\n"
+      end
+    end
+
+    @tabs.each_with_index do |tab,index|
+      printf "%-#{tab}s", "-" * @header[index].size
+    end
+
+    printf "\n"
+    @tabs.each_with_index do |tab,index|
+      printf "%-#{tab}s", @footer[index]
+    end
+    printf "\n"
   end
 end
 
@@ -145,6 +175,8 @@ else
   creds = Aws::SharedCredentials.new(profile_name: "default")
 end
 
+DEBUG = true if opts[:debug]
+
 # Apply appropriate credentials configuration
 Aws.config.update({credentials: creds})
 
@@ -159,6 +191,24 @@ metadata  = Oj.load_file("services.json")
 
 # Function definitions
 
+def parse_table_attributes(args={})
+  table       = args[:table]
+  attributes  = args[:attributes]
+
+  puts "+ DEBUG [parse_table_attributes]: Parsing  attributes array #{attributes}" if DEBUG
+
+  attributes.each do |attribute|
+    puts "++ DEBUG [parse_table_attributes]: Parsing attribute #{attribute}" if DEBUG
+    case attribute[:type]
+    when :scalar, :tags
+      table.header.push(attribute[:column_name])
+      table.tabs.push(attribute[:column_width])
+    when :collection
+      parse_table_attributes(table: table, attributes: attribute[:attributes])
+    end
+  end
+end
+
 def parse_datum(args={})
   datum       = args[:datum]
   table       = args[:table]
@@ -166,11 +216,11 @@ def parse_datum(args={})
   attributes  = args[:attributes]
   output      = nil
 
-  puts "+ DEBUG [parse_datum]: Parsing datum #{datum}"
-  puts "+ DEBUG [parse_datum]: Parsing #{attributes.size} attributes from #{attributes}"
+  puts "+ DEBUG [parse_datum]: Parsing datum #{datum}" if DEBUG
+  puts "+ DEBUG [parse_datum]: Parsing #{attributes.size} attributes from #{attributes}" if DEBUG
 
   attributes.each do |attribute|
-    puts "++ DEBUG [parse_datum]: Parsing attribute #{attribute}"
+    puts "++ DEBUG [parse_datum]: Parsing attribute #{attribute}" if DEBUG
 
     table.reset_row if attribute[:root_node]
 
@@ -190,16 +240,16 @@ def parse_datum(args={})
         table.next_row
       end
     when :collection
-      puts "+++ DEBUG [parse_datum]: Parsing #{datum[attribute[:collection_name]].size} items from array: #{datum[attribute[:collection_name]]}"
+      puts "+++ DEBUG [parse_datum]: Parsing #{datum[attribute[:collection_name]].size} items from array: #{datum[attribute[:collection_name]]}" if DEBUG
       datum[attribute[:collection_name]].each do |item|
-        puts "++++ DEBUG [parse_datum]: Parsing item #{item}"
+        puts "++++ DEBUG [parse_datum]: Parsing item #{item}" if DEBUG
         parse_datum({ datum:      item,
                       attributes: attribute[:attributes],
                       table:      table,
                       service:    service})
 
         if attribute[:leaf_node] && datum[attribute[:collection_name]].size > 0
-          puts "++++ DEBUG [parse_datum]: Current attribute is a leaf node... Incrementing row"
+          puts "++++ DEBUG [parse_datum]: Current attribute is a leaf node... Incrementing row" if DEBUG
           table.next_row
         end
       end
@@ -223,7 +273,7 @@ metadata[:services].each do |item|
   output  = Table.new                                       # Fresh table object to build output
 
   if service.has_items?                                     # First check if the service has any items to process
-    service.set_column_labels(table: output)                # Populate column labels into the table object
+    parse_table_attributes(table: output, attributes: service.attributes)                # Populate column labels into the table object
     service.set_title({status: true, table: output})        # Set the title for table
 
     if service.name == "EC2"
@@ -240,13 +290,14 @@ metadata[:services].each do |item|
       end
     else
       service.fetch_collection.each do |item|
-         parse_datum({ datum:      item,
-                       attributes: service.attributes,
-                       service:    service,
-                       table:      output }) 
+        puts "\nDEBUG [main]: Item = #{item}" if DEBUG
+        parse_datum({ datum:      item,
+                      attributes: service.attributes,
+                      service:    service,
+                      table:      output }) 
 
-         service.totals[:count] += 1
-         output.new_row
+        service.totals[:count] += 1
+        output.new_row
       end
     end
     service.set_totals({table: output})
