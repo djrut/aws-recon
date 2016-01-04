@@ -1,14 +1,458 @@
 {
     ":services": [
         {
-            ":name": "ElastiCache Clusters",
-            ":client": ":elasticache",
-            ":describe_method": "describe_cache_clusters",
-            ":collection": "cache_clusters",
+            ":name": "EC2",
+            ":client": ":ec2",
+            ":describe_method": "describe_instances",
+            ":collection_name": "reservations",
             ":attributes": [
                 {
                     ":column_name": "ID",
                     ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "instance_id",
+                    ":column_width": 15,
+                    ":count": true
+                },
+                {
+                    ":column_name": "Type",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "instance_type",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "State",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":stub": "state",
+                    ":target": "name",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "AZ",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":stub": "placement",
+                    ":target": "availability_zone",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "EBS Optimized?",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "ebs_optimized",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "Tags",
+                    ":type": ":tags",
+                    ":root_node": true,
+                    ":stub": "tags",
+                    ":column_width": 60
+                }
+            ]
+        },
+        {
+            ":name": "Reserved Instances",
+            ":client": ":ec2",
+            ":describe_method": "describe_reserved_instances",
+            ":collection_name": "reserved_instances",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "reserved_instances_id",
+                    ":column_width": 15,
+                    ":count": true
+                },
+                {
+                    ":column_name": "Type",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "instance_type",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "Instances",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "instance_count",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "State",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "name",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "AZ",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "availability_zone",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "Start",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "start",
+                    ":column_width": 10
+                },
+                {
+                    ":column_name": "End",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "end",
+                    ":column_width": 10
+                },
+                {
+                    ":column_name": "Duration",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "duration",
+                    ":column_width": 10
+                },
+                {
+                    ":column_name": "Usage $",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "usage_price",
+                    ":column_width": 10
+                },
+                {
+                    ":column_name": "Fixed $",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "fixed_price",
+                    ":column_width": 10
+                },
+                {
+                    ":column_name": "Tags",
+                    ":type": ":tags",
+                    ":root_node": true,
+                    ":stub": "tags",
+                    ":column_width": 60
+                }
+            ]
+        },
+        {
+            ":name": "EBS",
+            ":client": ":ec2",
+            ":describe_method": "describe_volumes",
+            ":collection_name": "volumes",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "volume_id",
+                    ":column_width": 15,
+                    ":count": true
+                },
+                {
+                    ":column_name": "Size (GB)",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "size",
+                    ":column_width": 15,
+                    ":sum": true
+                },
+                {
+                    ":column_name": "State",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "state",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "Volume Type",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "volume_type",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "IOPS",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "iops",
+                    ":column_width": 15,
+                    ":sum": true
+                },
+                {
+                    ":column_name": "Encrypted?",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "encrypted",
+                    ":column_width": 15
+                },
+                {
+                    ":name": "Attachments",
+                    ":type": ":collection",
+                    ":root_node": true,
+                    ":collection_name": "attachments",
+                    ":attributes": [
+                    {
+                        ":column_name": "Instance ID",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "instance_id",
+                        ":column_width": 15
+                    },
+                    {
+                        ":column_name": "Device",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "device",
+                        ":column_width": 15
+                    },
+                    {
+                        ":column_name": "Attach State",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "state",
+                        ":column_width": 15
+                    }]
+                },
+                {
+                    ":column_name": "Tags",
+                    ":type": ":tags",
+                    ":root_node": true,
+                    ":stub": "tags",
+                    ":column_width": 60
+                }
+            ]
+        },
+        {
+            ":name": "VPC",
+            ":client": ":ec2",
+            ":describe_method": "describe_vpcs",
+            ":collection_name": "vpcs",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "vpc_id",
+                    ":column_width": 15,
+                    ":count": true
+                },
+                {
+                    ":column_name": "State",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "state",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "CIDR",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "cidr_block",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "Tenancy",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "instance_tenancy",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "Default?",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "is_default",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "Tags",
+                    ":type": ":tags",
+                    ":root_node": true,
+                    ":stub": "tags",
+                    ":column_width": 60
+                }
+            ]
+        },
+        {
+            ":name": "ELB",
+            ":client": ":elb",
+            ":describe_method": "describe_load_balancers",
+            ":collection_name": "load_balancer_descriptions",
+            ":attributes": [
+                {
+                    ":column_name": "Name",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "load_balancer_name",
+                    ":column_width": 40,
+                    ":count": true
+                },
+                {
+                    ":column_name": "Scheme",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "scheme",
+                    ":column_width": 20
+                },
+                {
+                    ":column_name": "VPC",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "vpc_id",
+                    ":column_width": 15
+                },
+                {
+                    ":name": "Instances",
+                    ":type": ":collection",
+                    ":root_node": true,
+                    ":collection_name": "instances",
+                    ":attributes": [
+                      {
+                        ":column_name": "ID",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "instance_id",
+                        ":column_width": 15
+                      }]
+                },
+                {
+                    ":name": "Listeners",
+                    ":type": ":collection",
+                    ":root_node": true,
+                    ":collection_name": "listener_descriptions",
+                    ":attributes": [
+                      {
+                        ":column_name": "F/E Proto",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":stub": "listener",
+                        ":target": "protocol",
+                        ":column_width": 10
+                      },
+                      {
+                        ":column_name": "F/E Port",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":stub": "listener",
+                        ":target": "load_balancer_port",
+                        ":column_width": 10
+                      },
+                      {
+                        ":column_name": "B/E Proto",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":stub": "listener",
+                        ":target": "instance_protocol",
+                        ":column_width": 10
+                      },
+                      {
+                        ":column_name": "B/E Port",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":collection": "listener_descriptions",
+                        ":stub": "listener",
+                        ":target": "instance_port",
+                        ":column_width": 10
+                      }]
+                }
+            ]
+        },
+        {
+            ":name": "RDS",
+            ":client": ":rds",
+            ":describe_method": "describe_db_instances",
+            ":collection_name": "db_instances",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "db_instance_identifier",
+                    ":column_width": 30,
+                    ":count": true
+                },
+                {
+                    ":column_name": "Status",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "db_instance_status",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "Class",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "db_instance_class",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "Engine",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "engine",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "Version",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "engine_version",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "Multi AZ?",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "multi_az",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "Storage Type",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "storage_type",
+                    ":column_width": 15
+                },
+                {
+                    ":column_name": "Allocated GB",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "allocated_storage",
+                    ":column_width": 15,
+                    ":sum": true
+                },
+                {
+                    ":column_name": "IOPS",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "iops",
+                    ":column_width": 10,
+                    ":sum": true
+                },
+                {
+                    ":column_name": "Encrypted?",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "storage_encrypted",
+                    ":column_width": 15
+                }
+            ]
+        },
+        {
+            ":name": "ElastiCache Clusters",
+            ":client": ":elasticache",
+            ":describe_method": "describe_cache_clusters",
+            ":collection_name": "cache_clusters",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
                     ":target": "cache_cluster_id",
                     ":column_width": 20,
                     ":count": true
@@ -16,30 +460,35 @@
                 {
                     ":column_name": "Type",
                     ":type": ":scalar",
+                    ":root_node": true,
                     ":target": "cache_node_type",
                     ":column_width": 10
                 },
                 {
                     ":column_name": "Engine",
                     ":type": ":scalar",
+                    ":root_node": true,
                     ":target": "engine",
                     ":column_width": 10
                 },
                 {
                     ":column_name": "Version",
                     ":type": ":scalar",
+                    ":root_node": true,
                     ":target": "engine_version",
                     ":column_width": 10
                 },
                 {
                     ":column_name": "Status",
                     ":type": ":scalar",
+                    ":root_node": true,
                     ":target": "cache_cluster_status",
                     ":column_width": 15
                 },
                 {
                     ":column_name": "Node count",
                     ":type": ":scalar",
+                    ":root_node": true,
                     ":target": "num_cache_nodes",
                     ":column_width": 10,
                     ":count": true
@@ -47,36 +496,44 @@
                 {
                     ":column_name": "Replication Group",
                     ":type": ":scalar",
+                    ":root_node": true,
                     ":target": "replication_group_id",
                     ":column_width": 20
                 },
                 {
-                    ":column_name": "Node ID",
-                    ":type": ":list",
-                    ":collection": "cache_nodes",
-                    ":target": "cache_node_id",
-                    ":column_width": 10
-                },
-                {
-                    ":column_name": "Node Status",
-                    ":type": ":list",
-                    ":collection": "cache_nodes",
-                    ":target": "cache_node_status",
-                    ":column_width": 10
-                },
-                {
-                    ":column_name": "Created",
-                    ":type": ":list",
-                    ":collection": "cache_nodes",
-                    ":target": "cache_node_create_time",
-                    ":column_width": 15
-                },
-                {
-                    ":column_name": "Source node",
-                    ":type": ":list",
-                    ":collection": "cache_nodes",
-                    ":target": "source_cache_node_id",
-                    ":column_width": 15
+                    ":name": "Nodes",
+                    ":type": ":collection",
+                    ":root_node": true,
+                    ":collection_name": "cache_nodes",
+                    ":attributes": [
+                      {
+                        ":column_name": "ID",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "cache_node_id",
+                        ":column_width": 10
+                      },
+                      {
+                        ":column_name": "Status",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "cache_node_status",
+                        ":column_width": 10
+                      },
+                      {
+                        ":column_name": "Created",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "cache_node_create_time",
+                        ":column_width": 15
+                      },
+                      {
+                        ":column_name": "Source node",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "source_cache_node_id",
+                        ":column_width": 15
+                      }]
                 }
             ]
         },
@@ -84,10 +541,11 @@
             ":name": "ElastiCache Replication Groups",
             ":client": ":elasticache",
             ":describe_method": "describe_replication_groups",
-            ":collection": "replication_groups",
+            ":collection_name": "replication_groups",
             ":attributes": [
                 {
                     ":type": ":scalar",
+                    ":root_node": true,
                     ":column_name": "ID",
                     ":target": "replication_group_id",
                     ":column_width": 20,
@@ -95,26 +553,30 @@
                 },
                 {
                     ":type": ":scalar",
+                    ":root_node": true,
                     ":column_name": "Status",
                     ":target": "status",
                     ":column_width": 15
                 },
                 {
                     ":type": ":scalar",
+                    ":root_node": true,
                     ":column_name": "Description",
                     ":target": "description",
                     ":column_width": 15
                 },
                 {
                     ":type": ":scalar",
+                    ":root_node": true,
                     ":column_name": "Automatic Failover",
                     ":target": "automatic_failover",
                     ":column_width": 15
                 },
                 {
-                    ":type": ":array",
+                    ":type": ":collection",
+                    ":root_node": true,
                     ":name": "Node Groups",
-                    ":collection": "node_groups",
+                    ":collection_name": "node_groups",
                     ":attributes": [
                       {
                           ":type": ":scalar",
@@ -129,24 +591,27 @@
                           ":column_width": 15
                       },
                       {
-                          ":type": ":array",
+                          ":type": ":collection",
                           ":name": "Node Group Members",
-                          ":collection": "node_group_members",
+                          ":collection_name": "node_group_members",
                           ":attributes": [
                             {
                                 ":type": ":scalar",
+                                ":leaf_node": true,
                                 ":column_name": "Cluster ID",
                                 ":target": "cache_cluster_id",
                                 ":column_width": 15
                             },
                             {
                                 ":type": ":scalar",
+                                ":leaf_node": true,
                                 ":column_name": "Node ID",
                                 ":target": "cache_node_id",
                                 ":column_width": 15
                             },
                             {
                                 ":type": ":scalar",
+                                ":leaf_node": true,
                                 ":column_name": "Current Role",
                                 ":target": "current_role",
                                 ":column_width": 15
