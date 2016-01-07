@@ -2,6 +2,7 @@
     ":services": [
         {
             ":name": "EC2",
+            ":group": "Compute",
             ":client": ":ec2",
             ":describe_method": "describe_instances",
             ":collection_name": "reservations",
@@ -39,7 +40,7 @@
                 },
                 {
                     ":column_name": "EBS Optimized?",
-                    ":type": ":scalar",
+                    ":type": ":boolean",
                     ":root_node": true,
                     ":target": "ebs_optimized",
                     ":column_width": 15
@@ -55,6 +56,7 @@
         },
         {
             ":name": "Reserved Instances",
+            ":group": "Compute",
             ":client": ":ec2",
             ":describe_method": "describe_reserved_instances",
             ":collection_name": "reserved_instances",
@@ -141,6 +143,7 @@
         },
         {
             ":name": "EBS",
+            ":group": "Storage",
             ":client": ":ec2",
             ":describe_method": "describe_volumes",
             ":collection_name": "volumes",
@@ -185,7 +188,7 @@
                 },
                 {
                     ":column_name": "Encrypted?",
-                    ":type": ":scalar",
+                    ":type": ":boolean",
                     ":root_node": true,
                     ":target": "encrypted",
                     ":column_width": 15
@@ -229,6 +232,7 @@
         },
         {
             ":name": "VPC",
+            ":group": "Network",
             ":client": ":ec2",
             ":describe_method": "describe_vpcs",
             ":collection_name": "vpcs",
@@ -264,7 +268,7 @@
                 },
                 {
                     ":column_name": "Default?",
-                    ":type": ":scalar",
+                    ":type": ":boolean",
                     ":root_node": true,
                     ":target": "is_default",
                     ":column_width": 15
@@ -280,6 +284,7 @@
         },
         {
             ":name": "ELB",
+            ":group": "Network",
             ":client": ":elb",
             ":describe_method": "describe_load_balancers",
             ":collection_name": "load_balancer_descriptions",
@@ -364,6 +369,7 @@
         },
         {
             ":name": "RDS",
+            ":group": "Database",
             ":client": ":rds",
             ":describe_method": "describe_db_instances",
             ":collection_name": "db_instances",
@@ -406,7 +412,7 @@
                 },
                 {
                     ":column_name": "Multi AZ?",
-                    ":type": ":scalar",
+                    ":type": ":boolean",
                     ":root_node": true,
                     ":target": "multi_az",
                     ":column_width": 15
@@ -436,7 +442,7 @@
                 },
                 {
                     ":column_name": "Encrypted?",
-                    ":type": ":scalar",
+                    ":type": ":boolean",
                     ":root_node": true,
                     ":target": "storage_encrypted",
                     ":column_width": 15
@@ -445,6 +451,7 @@
         },
         {
             ":name": "ElastiCache Clusters",
+            ":group": "Database",
             ":client": ":elasticache",
             ":describe_method": "describe_cache_clusters",
             ":collection_name": "cache_clusters",
@@ -511,7 +518,8 @@
                         ":type": ":scalar",
                         ":leaf_node": true,
                         ":target": "cache_node_id",
-                        ":column_width": 10
+                        ":column_width": 10,
+                        ":count": true
                       },
                       {
                         ":column_name": "Status",
@@ -539,6 +547,7 @@
         },
         {
             ":name": "ElastiCache Replication Groups",
+            ":group": "Database",
             ":client": ":elasticache",
             ":describe_method": "describe_replication_groups",
             ":collection_name": "replication_groups",
@@ -582,7 +591,8 @@
                           ":type": ":scalar",
                           ":column_name": "ID",
                           ":target": "node_group_id",
-                          ":column_width": 15
+                          ":column_width": 15,
+                          ":count": true
                       },
                       {
                           ":type": ":scalar",
@@ -600,7 +610,8 @@
                                 ":leaf_node": true,
                                 ":column_name": "Cluster ID",
                                 ":target": "cache_cluster_id",
-                                ":column_width": 15
+                                ":column_width": 15,
+                                ":count": true
                             },
                             {
                                 ":type": ":scalar",
