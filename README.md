@@ -89,13 +89,10 @@ Options:
 
 ## Installation
 
-- Clone this repo
-```
-git clone git@github.com:djrut/aws-recon.git
-```
-- From the directory that you cloned the repo to, run:
+- Clone this repo `git clone https://github.com/djrut/aws-recon.git`
+- From the directory that you cloned the repo to, run: `bundle install`
 
+## Running it
 ```
-bundle install
 bundle exec bin/aws-recon.rb --region <region> 
 ```
