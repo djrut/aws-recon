@@ -7,6 +7,7 @@ require 'oj'
 require './lib/AwsRecon.rb'
 
 # Global variables
+#
 $debug          = false
 $default_config = "data/services.json"
 
@@ -19,6 +20,7 @@ def print_debug(args={})
 end
 
 # Parse options
+#
 opts = Trollop::options do
   version "aws-recon v1.0 (c) 2016 Duncan Rutland"
   opt :region, "AWS Region to perform scan on", short: "-r", type: :string, required: true
@@ -34,10 +36,14 @@ opts = Trollop::options do
   conflicts :profile, :extid
 end
 
+$debug  = true if opts[:debug]
+
 # Exit if supplied configuration does not exist
+#
 Trollop::die :config, "configuration file #{opts[:config]} does not exist!" unless File.exist?(opts[:config]) if opts[:config]
 
 # Load service definitions and populate directory hash
+#
 directory = Hash.new
 metadata  = Oj.load_file(opts[:config])
 metadata[:services].each do |service|
@@ -45,33 +51,41 @@ metadata[:services].each do |service|
 end
 
 # Exit if a non-supported format is supplied
+#
 Trollop::die :format, "must be either #{AwsRecon::Table.formats}" unless AwsRecon::Table.formats.member?(opts[:format]) if opts[:format]
 
 # Process group parameter and exit if not a valid group
+#
+
 opts[:group].map! {|item| item.downcase}
 
 opts[:group].each do |group|
-  Trollop::die :group, "must be one of the following: #{directory.values.uniq}" unless directory.values.uniq.member?(group)
+  Trollop::die :group, "must be composed of one or more of the following: #{directory.values.uniq}" unless directory.values.uniq.member?(group)
 end
 
 # Set region
-Aws.config.update(region: opts[:region])
-
 # Determine whether we are using role assumption or local .aws/credentials profile
-if opts[:role] then
-  creds = Aws::AssumeRoleCredentials.new(role_arn: opts[:role],
-                                         role_session_name: "aws-recon",
-                                         external_id: opts[:extid])
-elsif opts[:profile] then
-  creds = Aws::SharedCredentials.new(profile_name: opts[:profile])
-else
-  creds = Aws::SharedCredentials.new(profile_name: "default")
+#
+begin
+  Aws.config.update(region: opts[:region])
+  if opts[:role] then
+    creds = Aws::AssumeRoleCredentials.new( role_arn:          opts[:role],
+                                            role_session_name: "aws-recon",
+                                            external_id:       opts[:extid] )
+  elsif opts[:profile] then
+    creds = Aws::SharedCredentials.new(profile_name: opts[:profile])
+  else
+    creds = Aws::SharedCredentials.new(profile_name: "default")
+  end
+  # Apply appropriate credentials configuration
+  Aws.config.update(credentials: creds)
+rescue Aws::Errors::NoSuchProfileError => error
+  puts "Profile configuration update failed: #{error.message}"
+  exit 1
+rescue Aws::STS::Errors::AccessDenied => error
+  puts "Role assumption failed: #{error.message}"
+  exit 1
 end
-
-$debug  = true if opts[:debug]
-
-# Apply appropriate credentials configuration
-Aws.config.update(credentials: creds)
 
 # Populate hash with AWS SDK client objects
 clients   = { ec2:          Aws::EC2::Client.new,
@@ -93,19 +107,21 @@ services.each do |item|
   print_debug(source: "#{__method__}", message: "Processing service #{item}") if $debug
 
   service = AwsRecon::Service.new( metadata:  item,
-                                   clients:   clients )          # Create a new AWSService object to contain metadata and client object
+                                   clients:   clients )
 
-  output  = AwsRecon::Table.new(format: opts[:format].to_sym)         # Fresh table object to build output
+  output  = AwsRecon::Table.new(format: opts[:format].to_sym)
 
-  if service.has_items?                                     # First check if the service has any items to process
-    output.set_header(attributes:  service.attributes) # Populate column labels into the table object
+  if service.has_items?
+    output.set_header(attributes:  service.attributes)
 
     output.set_title( status: true,
-                      name:   service.name )        # Set the title for table
+                      name:   service.name )
 
     if service.name == "EC2"
       service.describe_output.reservations.each do |reservation|
         reservation.instances.each do |item|
+          print_debug(source: "#{__method__}", message: "Item = #{item}") if $debug
+
           service.parse_datum( datum:      item,
                                attributes: service.attributes,
                                table:      output ) 
@@ -128,7 +144,7 @@ services.each do |item|
     end
 
     output.set_footer( attributes:  service.attributes,
-                       totals:      service.totals)
+                       totals:      service.totals )
   else
     print_debug(source: "#{__method__}", message: "Service has no items to process!") if $debug
 

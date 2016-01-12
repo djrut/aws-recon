@@ -11,13 +11,20 @@ module AwsRecon
       @collection       = @metadata[:collection_name]
       @describe_method  = @metadata[:describe_method]
       @client           = @clients[@metadata[:client]] 
-      @describe_output  = @client.send(@describe_method)
       @totals           = { count: 0 }
+      fetch_collection
     end
 
     def fetch_collection
-      @describe_output = @client.send(@describe_method)
-      return @describe_output[@collection]
+      begin
+        @describe_output = @client.send(@describe_method)
+      rescue Seahorse::Client::NetworkingError => error
+        puts "Unable to establish connection: #{error.message}"
+        puts "\nCheck your network connectivity, and that the supplied region name is correct."
+        exit 1
+      else
+        @describe_output[@collection]
+      end
     end
 
     def has_items?
