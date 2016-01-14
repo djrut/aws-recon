@@ -10,6 +10,7 @@ module AwsRecon
       @attributes       = @metadata[:attributes]
       @collection       = @metadata[:collection_name]
       @describe_method  = @metadata[:describe_method]
+      @describe_options = @metadata[:describe_options]
       @client           = @clients[@metadata[:client]] 
       @totals           = { count: 0 }
       fetch_collection
@@ -17,10 +18,16 @@ module AwsRecon
 
     def fetch_collection
       begin
-        @describe_output = @client.send(@describe_method)
+        @describe_output = @client.send(@describe_method,@describe_options)
       rescue Seahorse::Client::NetworkingError => error
         puts "Unable to establish connection: #{error.message}"
-        puts "\nCheck your network connectivity, and that the supplied region name is correct."
+        puts "Check your network connectivity, and that the supplied region name is correct."
+        exit 1
+      rescue Aws::IAM::Errors::ExpiredToken => error
+        puts "Temporary authentication failed: #{error.message}"
+        exit 1
+      rescue Aws::IAM::Errors::ServiceError => error
+        puts "Operation failed: #{error.message}"
         exit 1
       else
         @describe_output[@collection]
