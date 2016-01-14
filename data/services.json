@@ -142,6 +142,118 @@
             ]
         },
         {
+            ":name": "IAM Users ",
+            ":group": "Identity",
+            ":client": ":iam",
+            ":describe_method": "list_users",
+            ":collection_name": "users",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "user_id",
+                    ":column_width": 25,
+                    ":count": true
+                },
+                {
+                    ":column_name": "Name",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "user_name",
+                    ":column_width": 40
+                },
+                {
+                    ":column_name": "ARN",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "arn",
+                    ":column_width": 60
+                },
+                {
+                    ":column_name": "Path",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "path",
+                    ":column_width": 20
+                },
+                {
+                    ":column_name": "Create date",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "create_date",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "Last used",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "password_last_used",
+                    ":column_width": 12
+                }
+            ]
+        },
+        {
+            ":name": "IAM Policies (attached only)",
+            ":group": "Identity",
+            ":client": ":iam",
+            ":describe_method": "list_policies",
+            ":describe_options": { "only_attached": true },
+            ":collection_name": "policies",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "policy_id",
+                    ":column_width": 25,
+                    ":count": true
+                },
+                {
+                    ":column_name": "Name",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "policy_name",
+                    ":column_width": 40
+                },
+                {
+                    ":column_name": "ARN",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "arn",
+                    ":column_width": 60
+                },
+                {
+                    ":column_name": "Path",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "path",
+                    ":column_width": 20
+                },
+                {
+                    ":column_name": "Attach count",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "attachment_count",
+                    ":column_width": 10
+                },
+                {
+                    ":column_name": "Attachable?",
+                    ":type": ":boolean",
+                    ":root_node": true,
+                    ":target": "is_attachable",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "Create date",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "create_date",
+                    ":column_width": 12
+                }
+            ]
+        },
+        {
             ":name": "EBS",
             ":group": "Storage",
             ":client": ":ec2",
