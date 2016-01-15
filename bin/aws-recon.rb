@@ -27,6 +27,7 @@ opts = Trollop::options do
   opt :config, "Specify alternative configuration file", long: "--config-file", short: "-c", default: "#{$default_config}", type: :string
   opt :format, "Specify output format #{AwsRecon::Table.formats}", long: "--output-format", short: "-f", default: "console", type: :string
   opt :group, "Specify which service group(s) to display", long: "--service-group", short: "-g", default: ["Compute","Network"], type: :strings
+  opt :all, "Display data for all available service groups (equivalent to \"-g all\")", long: "--all", short: "-A", type: :flag
   opt :profile, "Specify AWS credential profile name", short: "-p", type: :string
   opt :role, "ARN for role to assume", short: "-R", type: :string
   opt :extid, "External ID for STS Assume Role", short: "-x", type: :string
@@ -58,6 +59,8 @@ Trollop::die :format, "must be either #{AwsRecon::Table.formats}" unless AwsReco
 #
 
 opts[:group].map! {|item| item.downcase}
+
+opts[:group] = directory.values.uniq if opts[:group].join == "all" || opts[:all]
 
 opts[:group].each do |group|
   Trollop::die :group, "must be composed of one or more of the following: #{directory.values.uniq}" unless directory.values.uniq.member?(group)
