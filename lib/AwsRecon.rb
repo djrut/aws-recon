@@ -1,6 +1,6 @@
 module AwsRecon
   class Service
-    attr_accessor :name, :attributes, :describe_output, :totals
+    attr_accessor :name, :attributes, :data, :totals
   
     def initialize(args={})
       @metadata         = args[:metadata]
@@ -8,17 +8,30 @@ module AwsRecon
 
       @name             = @metadata[:name]
       @attributes       = @metadata[:attributes]
-      @collection       = @metadata[:collection_name]
-      @describe_method  = @metadata[:describe_method]
-      @describe_options = @metadata[:describe_options]
-      @client           = @clients[@metadata[:client]] 
-      @totals           = { count: 0 }
-      fetch_collection
+      @totals           = Hash.new
+
+      @data = fetch_collection( method:     @metadata[:method],
+                                client:     @metadata[:client],
+                                options:    @metadata[:options],
+                                collection_name: @metadata[:collection_name] )
+        print_debug(source: "#{__method__}", message: "data = #{@data}") if $debug
     end
 
-    def fetch_collection
+    def fetch_collection(args={})
+      client      = @clients[args[:client]]
+      method      = args[:method]
+      options     = args[:options]
+      collection_name  = args[:collection_name]
+
+      print_debug(source: "#{__method__}", message: "method = #{method}") if $debug
+      print_debug(source: "#{__method__}", message: "options = #{options}") if $debug
+      print_debug(source: "#{__method__}", message: "client = #{client}") if $debug
+      print_debug(source: "#{__method__}", message: "collection = #{collection_name}") if $debug
+
       begin
-        @describe_output = @client.send(@describe_method,@describe_options)
+        output = client.send(method,options)
+        print_debug(source: "#{__method__}", message: "output[collection] = #{output[collection_name]}") if $debug
+        print_debug(source: "#{__method__}", message: "collection = #{collection_name}") if $debug
       rescue Seahorse::Client::NetworkingError => error
         puts "Unable to establish connection: #{error.message}"
         puts "Check your network connectivity, and that the supplied region name is correct."
@@ -30,16 +43,19 @@ module AwsRecon
         puts "Operation failed: #{error.message}"
         exit 1
       else
-        @describe_output[@collection]
+        print_debug(source: "#{__method__}", message: "output[collection] = #{output[collection_name]}") if $debug
+        print_debug(source: "#{__method__}", message: "collection = #{collection_name}") if $debug
+        output[collection_name]
       end
     end
 
     def has_items?
-      @describe_output[@collection].any?
+      print_debug(source: "#{__method__}", message: "output class = #{@output.class}") if $debug
+      @data.any?
     end
 
     def num_items
-      @describe_output[@collection].size
+      @data.size
     end
 
     def parse_datum(args={})
@@ -54,7 +70,10 @@ module AwsRecon
       attributes.each do |attribute|
         print_debug(source: "#{__method__}", message: "Parsing attribute #{attribute}") if $debug
     
-        table.reset_row if attribute[:root_node]
+        if attribute[:root_node]
+          table.reset_row
+          table.align_col
+        end
 
         case attribute[:type]
         when :scalar
@@ -79,22 +98,57 @@ module AwsRecon
             table.next_row
           end
         when :collection
+          table.set_col_tab
+
           datum[attribute[:collection_name]].each do |item|
             print_debug(source: "#{__method__}", message: "Parsing item #{item}") if $debug
     
             parse_datum( datum:      item,
                          attributes: attribute[:attributes],
                          table:      table)
-    
-            table.next_row if attribute[:leaf_node]
+
+            table.reset_col
+            table.next_row
           end
+          table.strip_col_tab
+        when :foreign_collection
+          table.set_col_tab
+
+          options = attribute[:options]
+
+          options[attribute[:filter].keys[0]] = datum[attribute[:filter].values[0]]
+
+          print_debug(source: "#{__method__}", message: "Foreign collection options #{options}") if $debug
+
+          foreign_data = fetch_collection( client:            attribute[:client],
+                                           method:            attribute[:method],
+                                           options:           attribute[:options],
+                                           collection_name:   attribute[:collection_name] )
+
+          foreign_data.each_with_index do |item,index|
+            print_debug(source: "#{__method__}", message: "Parsing foreign item ##{index} of #{foreign_data.size-1} contents: #{item}") if $debug
+    
+            parse_datum( datum:      item,
+                         attributes: attribute[:attributes],
+                         table:      table)
+    
+            table.reset_col
+            table.next_row
+          end
+            table.strip_col_tab
         end
     
         if attribute[:sum]
           @totals[attribute[:target]] = 0 if @totals[attribute[:target]].nil?
           @totals[attribute[:target]] += output.to_i
         end
-      table.next_col
+
+        if attribute[:count]
+          @totals[attribute[:target]] = 0 if @totals[attribute[:target]].nil?
+          @totals[attribute[:target]] += 1
+        end
+
+        table.next_col
       end
     end
   end
@@ -108,8 +162,10 @@ module AwsRecon
       @format   = args[:format]
       @col      = 0
       @row      = 0
-      @head     = 0
-      @tail     = 0
+      @row_head = 0
+      @row_tail = 0
+      @col_tabs = [0] 
+      @col_tail = 0
       @title    = "Empty table"
       @group    = String.new
       @header   = Array.new(2) { Array.new }
@@ -124,25 +180,53 @@ module AwsRecon
   
     def next_col
       @col += 1
+      @col_tail = [@col,@col_tail].max
+      print_debug(source: "#{__method__}", message: "New col = #{@col} tabs = #{@col_tabs} tail = #{@col_tail}") if $debug
     end
 
     def next_row
       @row += 1
-      @tail = [@row,@tail].max
+      @row_tail = [@row,@row_tail].max
+      print_debug(source: "#{__method__}", message: "Setting next row = #{@row} tail = #{@row_tail}") if $debug
     end
 
     def new_row
-      @head = @tail + 1
-      @row  = @head
-      @tail = @head
-      @col  = 0
+      @row_head     = @row_tail + 1
+      @row          = @row_head
+      @row_tail     = @row_head
+      @col          = 0
+      @col_tabs     = [0]
+      @col_tail     = 0
+      print_debug(source: "#{__method__}", message: "Setting NEW row = #{@row} head = #{@row_head} tail = #{@row_tail} col = #{@col}") if $debug
+    end
+    
+    def set_col_tab
+      print_debug(source: "#{__method__}", message: "Setting new tab at col = #{@col} full stack: #{@col_tabs}") if $debug
+      @col_tabs.push(@col)
+    end
+
+    def strip_col_tab
+      print_debug(source: "#{__method__}", message: "Stripping tab at col = #{@col} full stack: #{@col_tab}") if $debug
+      @col_tabs.pop
+    end
+
+    def align_col
+      @col        = @col_tail
+      print_debug(source: "#{__method__}", message: "Setting NEW col = #{@col} tabs = #{@col_tabs} tail = #{@col_tail} row = #{@row}") if $debug
     end
 
     def reset_row
-      @row = @head
+      @row = @row_head
+      print_debug(source: "#{__method__}", message: "New row = #{@row}") if $debug
+    end
+
+    def reset_col
+      print_debug(source: "#{__method__}", message: "Resetting col to latest tab stop at col =  #{@col_tabs.last} tabs = #{@col_tabs} tail = #{@col_tail} row = #{@row}") if $debug
+      @col = @col_tabs.last
     end
 
     def push(args={})
+      print_debug(source: "#{__method__}", message: "Pushing data: \"#{args[:data]}\ to row = #{@row} col = #{@col}") if $debug
       @matrix[@row][@col] = args[:data]
     end
 
@@ -175,7 +259,7 @@ module AwsRecon
           @header[0].push(@group)
           @header[1].push(attribute[:column_name])
           @group = ""
-        when :collection
+        when :collection, :foreign_collection
           @group = attribute[:name]
           set_header( attributes: attribute[:attributes] )
         end
@@ -189,14 +273,12 @@ module AwsRecon
       attributes.each do |attribute|
         case attribute[:type]
         when :scalar, :boolean, :tags
-          if attribute[:count]
-            @footer.push(totals[:count].to_s)
-          elsif totals[attribute[:target]]
+          if totals[attribute[:target]]
             @footer.push(totals[attribute[:target]].to_s)
           else
             @footer.push("N/A")
           end
-        when :collection
+        when :collection, :foreign_collection
           set_footer( attributes: attribute[:attributes],
                       totals:     totals )
         end
