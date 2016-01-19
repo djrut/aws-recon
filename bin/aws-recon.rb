@@ -27,6 +27,7 @@ opts = Trollop::options do
   opt :config, "Specify alternative configuration file", long: "--config-file", short: "-c", default: "#{$default_config}", type: :string
   opt :format, "Specify output format #{AwsRecon::Table.formats}", long: "--output-format", short: "-f", default: "console", type: :string
   opt :group, "Specify which service group(s) to display", long: "--service-group", short: "-g", default: ["Compute","Network"], type: :strings
+  opt :all, "Display data for all available service groups (equivalent to \"-g all\")", long: "--all", short: "-A", type: :flag
   opt :profile, "Specify AWS credential profile name", short: "-p", type: :string
   opt :role, "ARN for role to assume", short: "-R", type: :string
   opt :extid, "External ID for STS Assume Role", short: "-x", type: :string
@@ -40,7 +41,10 @@ $debug  = true if opts[:debug]
 
 # Exit if supplied configuration does not exist
 #
-Trollop::die :config, "configuration file #{opts[:config]} does not exist!" unless File.exist?(opts[:config]) if opts[:config]
+if opts[:config]
+  Trollop::die :config, "configuration path #{opts[:config]} does not exist!" unless File.exist?(opts[:config])
+  #Trollop::die :config, "configuration path #{opts[:config]} is not a directory!" unless File.directory?(opts[:config])
+end
 
 # Load service definitions and populate directory hash
 #
@@ -59,8 +63,16 @@ Trollop::die :format, "must be either #{AwsRecon::Table.formats}" unless AwsReco
 
 opts[:group].map! {|item| item.downcase}
 
+opts[:group] = directory.values.uniq if opts[:group].join == "all" || opts[:all]
+
 opts[:group].each do |group|
   Trollop::die :group, "must be composed of one or more of the following: #{directory.values.uniq}" unless directory.values.uniq.member?(group)
+end
+
+# Populate array of services to process based on group settings
+services = Array.new
+metadata[:services].each do |item|
+  services.push(item) if opts[:group].member?(item[:group].downcase)
 end
 
 # Set region
@@ -94,15 +106,6 @@ clients   = { ec2:          Aws::EC2::Client.new,
               rds:          Aws::RDS::Client.new,
               elasticache:  Aws::ElastiCache::Client.new }
 
-# Load service definitions
-metadata  = Oj.load_file(opts[:config])
-
-# Populate array of services to process based on group settings
-services = Array.new
-metadata[:services].each do |item|
-  services.push(item) if opts[:group].member?(item[:group].downcase)
-end
-
 # Main loop - iterate through AWS services within scope 
 services.each do |item|
   print_debug(source: "#{__method__}", message: "Processing service #{item}") if $debug
@@ -112,6 +115,7 @@ services.each do |item|
 
   output  = AwsRecon::Table.new(format: opts[:format].to_sym)
 
+  print_debug(source: "#{__method__}", message: "Service =  #{service}") if $debug
   if service.has_items?
     output.set_header(attributes:  service.attributes)
 
@@ -119,27 +123,25 @@ services.each do |item|
                       name:   service.name )
 
     if service.name == "EC2"
-      service.describe_output.reservations.each do |reservation|
+      service.data.each do |reservation|
         reservation.instances.each do |item|
           print_debug(source: "#{__method__}", message: "Item = #{item}") if $debug
 
           service.parse_datum( datum:      item,
                                attributes: service.attributes,
-                               table:      output ) 
+                               table:      output)
 
-          service.totals[:count] += 1
           output.new_row
         end
       end
     else
-      service.fetch_collection.each do |item|
+      service.data.each do |item|
         print_debug(source: "#{__method__}", message: "Item = #{item}") if $debug
 
         service.parse_datum( datum:      item,
                              attributes: service.attributes,
-                             table:      output ) 
+                             table:      output)
 
-        service.totals[:count] += 1
         output.new_row
       end
     end

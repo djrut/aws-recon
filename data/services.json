@@ -4,7 +4,7 @@
             ":name": "EC2",
             ":group": "Compute",
             ":client": ":ec2",
-            ":describe_method": "describe_instances",
+            ":method": "describe_instances",
             ":collection_name": "reservations",
             ":attributes": [
                 {
@@ -58,7 +58,7 @@
             ":name": "Reserved Instances",
             ":group": "Compute",
             ":client": ":ec2",
-            ":describe_method": "describe_reserved_instances",
+            ":method": "describe_reserved_instances",
             ":collection_name": "reserved_instances",
             ":attributes": [
                 {
@@ -145,7 +145,7 @@
             ":name": "IAM Users ",
             ":group": "Identity",
             ":client": ":iam",
-            ":describe_method": "list_users",
+            ":method": "list_users",
             ":collection_name": "users",
             ":attributes": [
                 {
@@ -161,14 +161,14 @@
                     ":type": ":scalar",
                     ":root_node": true,
                     ":target": "user_name",
-                    ":column_width": 40
+                    ":column_width": 25
                 },
                 {
                     ":column_name": "ARN",
                     ":type": ":scalar",
                     ":root_node": true,
                     ":target": "arn",
-                    ":column_width": 60
+                    ":column_width": 50
                 },
                 {
                     ":column_name": "Path",
@@ -190,6 +190,101 @@
                     ":root_node": true,
                     ":target": "password_last_used",
                     ":column_width": 12
+                },
+                {
+                    ":name": "Attached policies",
+                    ":type": ":foreign_collection",
+                    ":root_node": true,
+                    ":client": ":iam",
+                    ":method": "list_attached_user_policies",
+                    ":options": {},
+                    ":filter": { ":user_name": "user_name" },
+                    ":collection_name": "attached_policies",
+                    ":attributes": [
+                    {
+                        ":column_name": "Policy Name",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "policy_name",
+                        ":column_width": 25
+                    },
+                    {
+                        ":column_name": "Policy ARN",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "policy_arn",
+                        ":column_width": 25
+                    }]
+                }
+            ]
+        },
+        {
+            ":name": "IAM Groups ",
+            ":group": "Identity",
+            ":client": ":iam",
+            ":method": "list_groups",
+            ":collection_name": "groups",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "group_id",
+                    ":column_width": 25,
+                    ":count": true
+                },
+                {
+                    ":column_name": "Name",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "group_name",
+                    ":column_width": 25
+                },
+                {
+                    ":column_name": "ARN",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "arn",
+                    ":column_width": 50
+                },
+                {
+                    ":column_name": "Path",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "path",
+                    ":column_width": 10
+                },
+                {
+                    ":column_name": "Create date",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "create_date",
+                    ":column_width": 12
+                },
+                {
+                    ":name": "Attached policies",
+                    ":type": ":foreign_collection",
+                    ":root_node": true,
+                    ":client": ":iam",
+                    ":method": "list_attached_group_policies",
+                    ":options": {},
+                    ":filter": { ":group_name": "group_name" },
+                    ":collection_name": "attached_policies",
+                    ":attributes": [
+                    {
+                        ":column_name": "Policy Name",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "policy_name",
+                        ":column_width": 25
+                    },
+                    {
+                        ":column_name": "Policy ARN",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "policy_arn",
+                        ":column_width": 25
+                    }]
                 }
             ]
         },
@@ -197,8 +292,8 @@
             ":name": "IAM Policies (attached only)",
             ":group": "Identity",
             ":client": ":iam",
-            ":describe_method": "list_policies",
-            ":describe_options": { "only_attached": true },
+            ":method": "list_policies",
+            ":options": { "only_attached": true },
             ":collection_name": "policies",
             ":attributes": [
                 {
@@ -254,10 +349,80 @@
             ]
         },
         {
+            ":name": "IAM Roles",
+            ":group": "Identity",
+            ":client": ":iam",
+            ":method": "list_roles",
+            ":collection_name": "roles",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "role_id",
+                    ":column_width": 25,
+                    ":count": true
+                },
+                {
+                    ":column_name": "Name",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "role_name",
+                    ":column_width": 25
+                },
+                {
+                    ":column_name": "ARN",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "arn",
+                    ":column_width": 50
+                },
+                {
+                    ":column_name": "Path",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "path",
+                    ":column_width": 10
+                },
+                {
+                    ":column_name": "Create date",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "create_date",
+                    ":column_width": 12
+                },
+                {
+                    ":name": "Attached policies",
+                    ":type": ":foreign_collection",
+                    ":root_node": true,
+                    ":client": ":iam",
+                    ":method": "list_attached_role_policies",
+                    ":options": {},
+                    ":filter": { ":role_name": "role_name" },
+                    ":collection_name": "attached_policies",
+                    ":attributes": [
+                    {
+                        ":column_name": "Policy Name",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "policy_name",
+                        ":column_width": 25
+                    },
+                    {
+                        ":column_name": "Policy ARN",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "policy_arn",
+                        ":column_width": 25
+                    }]
+                }
+            ]
+        },
+        {
             ":name": "EBS",
             ":group": "Storage",
             ":client": ":ec2",
-            ":describe_method": "describe_volumes",
+            ":method": "describe_volumes",
             ":collection_name": "volumes",
             ":attributes": [
                 {
@@ -346,7 +511,7 @@
             ":name": "VPC",
             ":group": "Network",
             ":client": ":ec2",
-            ":describe_method": "describe_vpcs",
+            ":method": "describe_vpcs",
             ":collection_name": "vpcs",
             ":attributes": [
                 {
@@ -398,7 +563,7 @@
             ":name": "ELB",
             ":group": "Network",
             ":client": ":elb",
-            ":describe_method": "describe_load_balancers",
+            ":method": "describe_load_balancers",
             ":collection_name": "load_balancer_descriptions",
             ":attributes": [
                 {
@@ -483,7 +648,7 @@
             ":name": "RDS",
             ":group": "Database",
             ":client": ":rds",
-            ":describe_method": "describe_db_instances",
+            ":method": "describe_db_instances",
             ":collection_name": "db_instances",
             ":attributes": [
                 {
@@ -565,7 +730,7 @@
             ":name": "ElastiCache Clusters",
             ":group": "Database",
             ":client": ":elasticache",
-            ":describe_method": "describe_cache_clusters",
+            ":method": "describe_cache_clusters",
             ":collection_name": "cache_clusters",
             ":attributes": [
                 {
@@ -577,11 +742,11 @@
                     ":count": true
                 },
                 {
-                    ":column_name": "Type",
+                    ":column_name": "Instance Type",
                     ":type": ":scalar",
                     ":root_node": true,
                     ":target": "cache_node_type",
-                    ":column_width": 10
+                    ":column_width": 20
                 },
                 {
                     ":column_name": "Engine",
@@ -610,7 +775,7 @@
                     ":root_node": true,
                     ":target": "num_cache_nodes",
                     ":column_width": 10,
-                    ":count": true
+                    ":sum": true
                 },
                 {
                     ":column_name": "Replication Group",
@@ -661,7 +826,7 @@
             ":name": "ElastiCache Replication Groups",
             ":group": "Database",
             ":client": ":elasticache",
-            ":describe_method": "describe_replication_groups",
+            ":method": "describe_replication_groups",
             ":collection_name": "replication_groups",
             ":attributes": [
                 {
@@ -684,7 +849,7 @@
                     ":root_node": true,
                     ":column_name": "Description",
                     ":target": "description",
-                    ":column_width": 15
+                    ":column_width": 30
                 },
                 {
                     ":type": ":scalar",
@@ -703,7 +868,7 @@
                           ":type": ":scalar",
                           ":column_name": "ID",
                           ":target": "node_group_id",
-                          ":column_width": 15,
+                          ":column_width": 12,
                           ":count": true
                       },
                       {
@@ -730,7 +895,7 @@
                                 ":leaf_node": true,
                                 ":column_name": "Node ID",
                                 ":target": "cache_node_id",
-                                ":column_width": 15
+                                ":column_width": 10
                             },
                             {
                                 ":type": ":scalar",
