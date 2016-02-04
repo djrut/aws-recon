@@ -110,10 +110,9 @@ clients   = { ec2:          Aws::EC2::Client.new,
 services.each do |item|
   print_debug(source: "#{__method__}", message: "Processing service #{item}") if $debug
 
-  service = AwsRecon::Service.new( metadata:  item,
-                                   clients:   clients )
-
-  output  = AwsRecon::Table.new(format: opts[:format].to_sym)
+  service     = AwsRecon::Service.new( metadata:  item,
+                                       clients:   clients )
+  output      = AwsRecon::Table.new(format: opts[:format].to_sym)
 
   print_debug(source: "#{__method__}", message: "Service =  #{service}") if $debug
   if service.has_items?
@@ -122,7 +121,7 @@ services.each do |item|
     output.set_title( status: true,
                       name:   service.name )
 
-    if service.name == "EC2"
+    if service.name =~ /EC2/
       service.data.each do |reservation|
         reservation.instances.each do |item|
           print_debug(source: "#{__method__}", message: "Item = #{item}") if $debug

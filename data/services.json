@@ -12,8 +12,15 @@
                     ":type": ":scalar",
                     ":root_node": true,
                     ":target": "instance_id",
-                    ":column_width": 15,
+                    ":column_width": 13,
                     ":count": true
+                },
+                {
+                    ":column_name": "Image",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "image_id",
+                    ":column_width": 15
                 },
                 {
                     ":column_name": "Type",
@@ -21,6 +28,13 @@
                     ":root_node": true,
                     ":target": "instance_type",
                     ":column_width": 15
+                },
+                {
+                    ":column_name": "Root Dev",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "root_device_type",
+                    ":column_width": 10
                 },
                 {
                     ":column_name": "State",
@@ -39,11 +53,32 @@
                     ":column_width": 15
                 },
                 {
-                    ":column_name": "EBS Optimized?",
+                    ":column_name": "EBS Opt?",
                     ":type": ":boolean",
                     ":root_node": true,
                     ":target": "ebs_optimized",
-                    ":column_width": 15
+                    ":column_width": 10
+                },
+                {
+                    ":name": "Security Groups",
+                    ":type": ":collection",
+                    ":root_node": true,
+                    ":collection_name": "security_groups",
+                    ":attributes": [
+                    {
+                        ":column_name": "ID",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "group_id",
+                        ":column_width": 15
+                    },
+                    {
+                        ":column_name": "Name",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "group_name",
+                        ":column_width": 25
+                    }]
                 },
                 {
                     ":column_name": "Tags",
@@ -51,6 +86,82 @@
                     ":root_node": true,
                     ":stub": "tags",
                     ":column_width": 60
+                }
+            ]
+        },
+        {
+            ":name": "EC2 Images",
+            ":group": "Compute",
+            ":client": ":ec2",
+            ":method": "describe_instances",
+            ":collection_name": "reservations",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "instance_id",
+                    ":column_width": 13,
+                    ":count": true
+                },
+                {
+                    ":column_name": "Image ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "image_id",
+                    ":column_width": 15
+                },
+                {
+                    ":name": "AMI Details",
+                    ":type": ":foreign_collection",
+                    ":root_node": true,
+                    ":client": ":ec2",
+                    ":method": "describe_images",
+                    ":options": [
+                      {
+                          ":type": ":mapped",
+                          ":array": true,
+                          ":key": "image_ids",
+                          ":value": "image_id"
+                      }
+                    ],
+                    ":collection_name": "images",
+                    ":attributes": [
+                    {
+                        ":column_name": "Owner ID",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "owner_id",
+                        ":column_width": 15
+                    },
+                    {
+                        ":column_name": "Public?",
+                        ":type": ":boolean",
+                        ":leaf_node": true,
+                        ":target": "public",
+                        ":column_width": 15
+                    },
+                    {
+                        ":column_name": "Name",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "name",
+                        ":column_width": 25
+                    },
+                    {
+                        ":column_name": "Description",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "description",
+                        ":column_width": 25
+                    },
+                    {
+                        ":column_name": "Root device type",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "root_device_type",
+                        ":column_width": 25
+                    }]
                 }
             ]
         },
@@ -197,8 +308,14 @@
                     ":root_node": true,
                     ":client": ":iam",
                     ":method": "list_attached_user_policies",
-                    ":options": {},
-                    ":filter": { ":user_name": "user_name" },
+                    ":options": [
+                      {
+                          ":type": ":mapped",
+                          ":array": false,
+                          ":key": ":user_name",
+                          ":value": "user_name"
+                      }
+                    ],
                     ":collection_name": "attached_policies",
                     ":attributes": [
                     {
@@ -267,8 +384,14 @@
                     ":root_node": true,
                     ":client": ":iam",
                     ":method": "list_attached_group_policies",
-                    ":options": {},
-                    ":filter": { ":group_name": "group_name" },
+                    ":options": [
+                      {
+                          ":type": ":mapped",
+                          ":array": false,
+                          ":key": ":group_name",
+                          ":value": "group_name"
+                      }
+                    ],
                     ":collection_name": "attached_policies",
                     ":attributes": [
                     {
@@ -293,7 +416,7 @@
             ":group": "Identity",
             ":client": ":iam",
             ":method": "list_policies",
-            ":options": { "only_attached": true },
+            ":options": { ":only_attached": true },
             ":collection_name": "policies",
             ":attributes": [
                 {
@@ -397,8 +520,14 @@
                     ":root_node": true,
                     ":client": ":iam",
                     ":method": "list_attached_role_policies",
-                    ":options": {},
-                    ":filter": { ":role_name": "role_name" },
+                    ":options": [
+                      {
+                          ":type": ":mapped",
+                          ":array": false,
+                          ":key": ":role_name",
+                          ":value": "role_name"
+                      }
+                    ],
                     ":collection_name": "attached_policies",
                     ":attributes": [
                     {
@@ -549,6 +678,119 @@
                     ":root_node": true,
                     ":target": "is_default",
                     ":column_width": 15
+                },
+                {
+                    ":column_name": "Tags",
+                    ":type": ":tags",
+                    ":root_node": true,
+                    ":stub": "tags",
+                    ":column_width": 60
+                }
+            ]
+        },
+        {
+            ":name": "Security Groups",
+            ":group": "Network",
+            ":client": ":ec2",
+            ":method": "describe_security_groups",
+            ":collection_name": "security_groups",
+            ":attributes": [
+                {
+                    ":column_name": "Group ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "group_id",
+                    ":column_width": 12,
+                    ":count": true
+                },
+                {
+                    ":column_name": "VPC",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "vpc_id",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "Group Name",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "group_name",
+                    ":column_width": 20
+                },
+                {
+                    ":column_name": "Description",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "description",
+                    ":column_width": 30
+                },
+                {
+                    ":name": "Ingress Rules",
+                    ":type": ":collection",
+                    ":root_node": true,
+                    ":collection_name": "ip_permissions",
+                    ":attributes": [
+                      {
+                        ":column_name": "Proto",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "ip_protocol",
+                        ":column_width": 7
+                      },
+                      {
+                        ":column_name": "Port",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "to_port",
+                        ":column_width": 7
+                      },
+                      {
+                          ":name": "Source IP Ranges",
+                          ":type": ":collection",
+                          ":collection_name": "ip_ranges",
+                          ":attributes": [
+                            {
+                              ":column_name": "CIDR",
+                              ":type": ":scalar",
+                              ":leaf_node": true,
+                              ":target": "cidr_ip",
+                              ":column_width": 20
+                            }]
+                      }]
+                },
+                {
+                    ":name": "Egress Rules",
+                    ":type": ":collection",
+                    ":root_node": true,
+                    ":collection_name": "ip_permissions_egress",
+                    ":attributes": [
+                      {
+                        ":column_name": "Proto",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "ip_protocol",
+                        ":column_width": 7
+                      },
+                      {
+                        ":column_name": "Port",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "to_port",
+                        ":column_width": 7
+                      },
+                      {
+                          ":name": "Dst IP Ranges",
+                          ":type": ":collection",
+                          ":collection_name": "ip_ranges",
+                          ":attributes": [
+                            {
+                              ":column_name": "CIDR",
+                              ":type": ":scalar",
+                              ":leaf_node": true,
+                              ":target": "cidr_ip",
+                              ":column_width": 20
+                            }]
+                      }]
                 },
                 {
                     ":column_name": "Tags",
