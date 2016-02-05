@@ -45,6 +45,13 @@
                     ":column_width": 15
                 },
                 {
+                    ":column_name": "VPC",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "vpc_id",
+                    ":column_width": 10
+                },
+                {
                     ":column_name": "AZ",
                     ":type": ":scalar",
                     ":root_node": true,
@@ -139,28 +146,28 @@
                         ":type": ":boolean",
                         ":leaf_node": true,
                         ":target": "public",
-                        ":column_width": 15
+                        ":column_width": 8
                     },
                     {
                         ":column_name": "Name",
                         ":type": ":scalar",
                         ":leaf_node": true,
                         ":target": "name",
-                        ":column_width": 25
+                        ":column_width": 50
                     },
                     {
                         ":column_name": "Description",
                         ":type": ":scalar",
                         ":leaf_node": true,
                         ":target": "description",
-                        ":column_width": 25
+                        ":column_width": 70
                     },
                     {
-                        ":column_name": "Root device type",
+                        ":column_name": "Root device",
                         ":type": ":scalar",
                         ":leaf_node": true,
                         ":target": "root_device_type",
-                        ":column_width": 25
+                        ":column_width": 15
                     }]
                 }
             ]

@@ -1,7 +1,7 @@
 module AwsRecon
   class Table
     attr_accessor :header, :footer, :tabs, :group
-    MAX_ROWS = 128
+    MAX_ROWS = 1024
   
     def initialize(args={})
       @num_rows = args[:rows] || MAX_ROWS
