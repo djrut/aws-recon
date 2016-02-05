@@ -7,6 +7,7 @@ Currently supported services are:
 - EC2 (incl. Reserved instances)
 - EBS
 - VPC
+- IAM
 - ELB
 - RDS
 - ElastiCache
@@ -94,5 +95,5 @@ Options:
 
 ## Running it
 ```
-bundle exec bin/aws-recon.rb --region <region> 
+bin/aws-recon.rb --region <region> 
 ```
