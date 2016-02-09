@@ -105,9 +105,9 @@ module AwsRecon
           datum[attribute.collection_name].each do |item|
             print_debug(source: "#{__method__}", message: "Parsing item #{item}") if $debug
     
-            parse_datum( datum:      item,
-                        attributes:  attribute.attributes,
-                         table:      table)
+            parse_datum( datum:       item,
+                         attributes:  attribute.attributes,
+                         table:       table )
 
             table.reset_col
             table.next_row
@@ -128,9 +128,9 @@ module AwsRecon
           foreign_data.each_with_index do |item,index|
             print_debug(source: "#{__method__}", message: "Parsing foreign item ##{index} of #{foreign_data.size-1} contents: #{item}") if $debug
     
-            parse_datum( datum:      item,
-                        attributes:  attribute.attributes,
-                         table:      table)
+            parse_datum( datum:       item,
+                         attributes:  attribute.attributes,
+                         table:       table )
     
             table.reset_col
             table.next_row
@@ -138,15 +138,14 @@ module AwsRecon
             table.strip_col_tab
         end
     
-        if attribute.summed?
-          @totals[attribute.target] = 0 if @totals[attribute.target].nil?
-          @totals[attribute.target] += output.to_i
-        end
-
-        if attribute.counted?
-          @totals[attribute.target] = 0 if @totals[attribute.target].nil?
-          @totals[attribute.target] += 1
-        end
+        # Totalling/Summation Logic
+        # First, create a new hash key for the column (target) being processed if none exists
+        # If sum is true, add the output value to current value
+        # If count is true, increment the conter by one
+        #
+        @totals[attribute.target] = 0 if @totals[attribute.target].nil?
+        @totals[attribute.target] += output.to_i if attribute.summed?
+        @totals[attribute.target] += 1 if attribute.counted?
 
         table.next_col
       end

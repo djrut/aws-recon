@@ -6,6 +6,7 @@ module AwsRecon
     def initialize(args={})
       @num_rows = args[:rows] || MAX_ROWS
       @format   = args[:format]
+      @notags   = args[:notags]
       @col      = 0
       @row      = 0
       @row_head = 0
@@ -25,13 +26,13 @@ module AwsRecon
     end
   
     def next_col
-      @col += 1
+      @col      += 1
       @col_tail = [@col,@col_tail].max
       print_debug(source: "#{__method__}", message: "New col = #{@col} tabs = #{@col_tabs} tail = #{@col_tail}") if $debug
     end
 
     def next_row
-      @row += 1
+      @row      += 1
       @row_tail = [@row,@row_tail].max
       print_debug(source: "#{__method__}", message: "Setting next row = #{@row} tail = #{@row_tail}") if $debug
     end
@@ -101,10 +102,12 @@ module AwsRecon
 
         case attribute[:type]
         when :scalar, :boolean, :tags
-          @tabs.push(attribute[:column_width])
-          @header[0].push(@group)
-          @header[1].push(attribute[:column_name])
-          @group = ""
+          unless attribute[:type] == :tags && @notags
+            @tabs.push(attribute[:column_width])
+            @header[0].push(@group)
+            @header[1].push(attribute[:column_name])
+            @group = ""
+          end
         when :collection, :foreign_collection
           @group = attribute[:name]
           set_header( attributes: attribute[:attributes] )
@@ -119,10 +122,12 @@ module AwsRecon
       attributes.each do |attribute|
         case attribute[:type]
         when :scalar, :boolean, :tags
-          if totals[attribute[:target]]
-            @footer.push(totals[attribute[:target]].to_s)
-          else
-            @footer.push("N/A")
+          unless attribute[:type] == :tags && @notags
+            if totals[attribute[:target]]
+              @footer.push(totals[attribute[:target]].to_s)
+            else
+              @footer.push("N/A")
+            end
           end
         when :collection, :foreign_collection
           set_footer( attributes: attribute[:attributes],

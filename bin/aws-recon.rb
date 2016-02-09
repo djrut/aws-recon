@@ -28,6 +28,7 @@ opts = Trollop::options do
   opt :format, "Specify output format #{AwsRecon::Table.formats}", long: "--output-format", short: "-f", default: "console", type: :string
   opt :group, "Specify which service group(s) to display", long: "--service-group", short: "-g", default: ["Compute","Network"], type: :strings
   opt :all, "Display data for all available service groups (equivalent to \"-g all\")", long: "--all", short: "-A", type: :flag
+  opt :notags, "Disable display of tags for all services", long: "--no-tags", short: "-N", type: :flag
   opt :profile, "Specify AWS credential profile name", short: "-p", type: :string
   opt :role, "ARN for role to assume", short: "-R", type: :string
   opt :extid, "External ID for STS Assume Role", short: "-x", type: :string
@@ -111,8 +112,11 @@ services.each do |item|
   print_debug(source: "#{__method__}", message: "Processing service #{item}") if $debug
 
   service     = AwsRecon::Service.new( metadata:  item,
-                                       clients:   clients )
-  output      = AwsRecon::Table.new(format: opts[:format].to_sym)
+                                       clients:   clients,
+                                       notags:    opts[:notags] )
+
+  output      = AwsRecon::Table.new( format: opts[:format].to_sym,
+                                     notags: opts[:notags] )
 
   print_debug(source: "#{__method__}", message: "Service =  #{service}") if $debug
   if service.has_items?

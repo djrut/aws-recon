@@ -37,18 +37,21 @@ module AwsRecon
     end
     
     def build_options(args={})
-      datum = args[:datum]
-      output = Hash.new
+      datum   = args[:datum]
+      output  = Hash.new
 
       options.each do |option|
+        key   = option[:key]
+        value = option[:value]
+
         case option[:type]
         when :literal
-          output[option[:key]] = option[:value]
+          output[key] = value
         when :mapped
           if option[:array]
-            output[option[:key]] = [datum[option[:value]]] 
+            output[key] = [datum[value]] 
           else
-            output[option[:key]] = datum[option[:value]]
+            output[key] = datum[value]
           end
         end
       end
