@@ -696,6 +696,96 @@
             ]
         },
         {
+            ":name": "Subnets",
+            ":group": "Network",
+            ":client": ":ec2",
+            ":method": "describe_vpcs",
+            ":collection_name": "vpcs",
+            ":attributes": [
+                {
+                    ":column_name": "VPC ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "vpc_id",
+                    ":column_width": 15,
+                    ":count": true
+                },
+                {
+                    ":name": "Subnets",
+                    ":type": ":foreign_collection",
+                    ":root_node": true,
+                    ":client": ":ec2",
+                    ":method": "describe_subnets",
+                    ":filters": [
+                      {
+                          ":type": ":mapped",
+                          ":array": true,
+                          ":key": ":vpc-id",
+                          ":value": "vpc_id"
+                      }
+                    ],
+                    ":collection_name": "subnets",
+                    ":attributes": [
+                    {
+                        ":column_name": "ID",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "subnet_id",
+                        ":column_width": 18,
+                        ":count": true
+                    },
+                    {
+                        ":column_name": "State",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "state",
+                        ":column_width": 10
+                    },
+                    {
+                        ":column_name": "CIDR",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "cidr_block",
+                        ":column_width": 20
+                    },
+                    {
+                        ":column_name": "Free IPs",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "available_ip_address_count",
+                        ":column_width": 10
+                    },
+                    {
+                        ":column_name": "AZ",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "availability_zone",
+                        ":column_width": 12
+                    },
+                    {
+                        ":column_name": "Default?",
+                        ":type": ":boolean",
+                        ":leaf_node": true,
+                        ":target": "default_for_az",
+                        ":column_width": 10
+                    },
+                    {
+                        ":column_name": "Public IP?",
+                        ":type": ":boolean",
+                        ":leaf_node": true,
+                        ":target": "map_public_ip_on_launch",
+                        ":column_width": 10
+                    },
+                    {
+                        ":column_name": "Tags",
+                        ":type": ":tags",
+                        ":root_node": true,
+                        ":stub": "tags",
+                        ":column_width": 60
+                    }]
+                }]
+        },
+        {
             ":name": "Security Groups",
             ":group": "Network",
             ":client": ":ec2",
