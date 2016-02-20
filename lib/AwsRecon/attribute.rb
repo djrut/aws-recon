@@ -16,7 +16,8 @@ module AwsRecon
       @collection_name  = @metadata[:collection_name]
       @client           = @metadata[:client]
       @method           = @metadata[:method]
-      @options          = @metadata[:options]
+      @options          = @metadata[:options] || Array.new
+      @filters          = @metadata[:filters] || Array.new
       @attributes       = @metadata[:attributes]
     end
 
@@ -37,10 +38,12 @@ module AwsRecon
     end
     
     def build_options(args={})
-      datum   = args[:datum]
-      output  = Hash.new
+      datum             = args[:datum]
+      output            = Hash.new
+      output[:filters]  = Array.new
+      print_debug(source: "#{__method__}", message: "Built options = #{output}") if $debug
 
-      options.each do |option|
+      @options.each do |option|
         key   = option[:key]
         value = option[:value]
 
@@ -52,6 +55,23 @@ module AwsRecon
             output[key] = [datum[value]] 
           else
             output[key] = datum[value]
+          end
+        end
+      end
+      print_debug(source: "#{__method__}", message: "Built options = #{output}") if $debug
+
+      @filters.each do |filter|
+        key   = filter[:key]
+        value = filter[:value]
+
+        case filter[:type]
+        when :literal
+          output[:filters].push(name: key, values: value)
+        when :mapped
+          if filter[:array]
+            output[:filters].push(name: key, values: [datum[value]])
+          else
+            output[:filters].push(name: key, values: datum[value])
           end
         end
       end
