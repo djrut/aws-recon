@@ -786,6 +786,131 @@
                 }]
         },
         {
+            ":name": "Routing",
+            ":group": "Network",
+            ":client": ":ec2",
+            ":method": "describe_vpcs",
+            ":collection_name": "vpcs",
+            ":attributes": [
+                {
+                    ":column_name": "VPC ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "vpc_id",
+                    ":column_width": 15,
+                    ":count": true
+                },
+                {
+                    ":name": "Route Tables",
+                    ":type": ":foreign_collection",
+                    ":root_node": true,
+                    ":client": ":ec2",
+                    ":method": "describe_route_tables",
+                    ":filters": [
+                      {
+                          ":type": ":mapped",
+                          ":array": true,
+                          ":key": ":vpc-id",
+                          ":value": "vpc_id"
+                      }
+                    ],
+                    ":collection_name": "route_tables",
+                    ":attributes": [
+                    {
+                        ":column_name": "ID",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "route_table_id",
+                        ":column_width": 18,
+                        ":count": true
+                    },
+                    {
+                        ":name": "Routes",
+                        ":type": ":collection",
+                        ":root_node": true,
+                        ":collection_name": "routes",
+                        ":attributes": [
+                            {
+                                ":column_name": "Dest. CIDR",
+                                ":type": ":scalar",
+                                ":leaf_node": true,
+                                ":target": "destination_cidr_block",
+                                ":column_width": 20
+                            },
+                            {
+                                ":column_name": "Dest. Prefix",
+                                ":type": ":scalar",
+                                ":leaf_node": true,
+                                ":target": "destination_prefix_list_id",
+                                ":column_width": 15
+                            },
+                            {
+                                ":column_name": "GW ID",
+                                ":type": ":scalar",
+                                ":leaf_node": true,
+                                ":target": "gateway_id",
+                                ":column_width": 15
+                            },
+                            {
+                                ":column_name": "ENI ID",
+                                ":type": ":scalar",
+                                ":leaf_node": true,
+                                ":target": "network_interface_id",
+                                ":column_width": 15
+                            },
+                            {
+                                ":column_name": "PCX ID",
+                                ":type": ":scalar",
+                                ":leaf_node": true,
+                                ":target": "vpc_peering_connection_id",
+                                ":column_width": 15
+                            },
+                            {
+                                ":column_name": "State",
+                                ":type": ":scalar",
+                                ":leaf_node": true,
+                                ":target": "state",
+                                ":column_width": 12
+                            }]
+                    },
+                    {
+                        ":name": "Subnet Associations",
+                        ":type": ":collection",
+                        ":root_node": true,
+                        ":collection_name": "associations",
+                        ":attributes": [
+                        {
+                            ":column_name": "Assoc ID",
+                            ":type": ":scalar",
+                            ":leaf_node": true,
+                            ":target": "route_table_association_id",
+                            ":column_width": 21
+                        },
+                        {
+                            ":column_name": "Table ID",
+                            ":type": ":scalar",
+                            ":leaf_node": true,
+                            ":target": "route_table_id",
+                            ":column_width": 18
+                        },
+                        {
+                            ":column_name": "Subnet ID",
+                            ":type": ":scalar",
+                            ":leaf_node": true,
+                            ":target": "subnet_id",
+                            ":column_width": 18
+                        },
+                        {
+                            ":column_name": "Main?",
+                            ":type": ":boolean",
+                            ":leaf_node": true,
+                            ":target": "main",
+                            ":column_width": 7
+                        }]
+                    }]
+                }]
+        },
+        {
             ":name": "Security Groups",
             ":group": "Network",
             ":client": ":ec2",
