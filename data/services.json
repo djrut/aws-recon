@@ -1,6 +1,36 @@
 {
     ":services": [
         {
+            ":name": "Account Attributes",
+            ":group": "Compute",
+            ":client": ":ec2",
+            ":method": "describe_account_attributes",
+            ":collection_name": "account_attributes",
+            ":attributes": [
+                {
+                    ":column_name": "Name",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "attribute_name",
+                    ":column_width": 25,
+                    ":count": true
+                },
+                {
+                    ":name": "Values",
+                    ":type": ":collection",
+                    ":root_node": true,
+                    ":collection_name": "attribute_values",
+                    ":attributes": [
+                    {
+                        ":column_name": "Value",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "attribute_value",
+                        ":column_width": 25
+                    }]
+                }]
+        },
+        {
             ":name": "EC2",
             ":group": "Compute",
             ":client": ":ec2",
@@ -908,6 +938,151 @@
                             ":column_width": 7
                         }]
                     }]
+                }]
+        },
+        {
+            ":name": "VPC Peering Connections",
+            ":group": "Network",
+            ":client": ":ec2",
+            ":method": "describe_vpc_peering_connections",
+            ":collection_name": "vpc_peering_connections",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "vpc_peering_connection_id",
+                    ":column_width": 12,
+                    ":count": true
+                },
+                {
+                    ":column_name": "Accepter CIDR",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":stub": "accepter_vpc_info",
+                    ":target": "cidr_block",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "Accepter ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":stub": "accepter_vpc_info",
+                    ":target": "owner_id",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "Accepter VPC",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":stub": "accepter_vpc_info",
+                    ":target": "vpc_id",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "Requester CIDR",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":stub": "requester_vpc_info",
+                    ":target": "cidr_block",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "Requester ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":stub": "requester_vpc_info",
+                    ":target": "owner_id",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "Requester VPC",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":stub": "requester_vpc_info",
+                    ":target": "vpc_id",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "Status",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":stub": "status",
+                    ":target": "code",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "Tags",
+                    ":type": ":tags",
+                    ":root_node": true,
+                    ":stub": "tags",
+                    ":column_width": 60
+                }
+            ]
+        },
+        {
+            ":name": "VPN Gateways",
+            ":group": "Network",
+            ":client": ":ec2",
+            ":method": "describe_vpn_gateways",
+            ":collection_name": "vpn_gateways",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "vpn_gateway_id",
+                    ":column_width": 12,
+                    ":count": true
+                },
+                {
+                    ":column_name": "State",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "state",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "Type",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "type",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "AZ",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "availability_zone",
+                    ":column_width": 12
+                },
+                {
+                    ":name": "Attachments",
+                    ":type": ":collection",
+                    ":root_node": true,
+                    ":target": "vpc_attachments",
+                    ":attributes": [
+                      {
+                        ":column_name": "VPC ID",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "vpc_id",
+                        ":column_width": 12
+                      },
+                      {
+                        ":column_name": "State",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "state",
+                        ":column_width": 12
+                      }]
+                },
+                {
+                    ":column_name": "Tags",
+                    ":type": ":tags",
+                    ":root_node": true,
+                    ":stub": "tags",
+                    ":column_width": 60
                 }]
         },
         {

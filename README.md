@@ -11,6 +11,8 @@ Currently supported services are:
 - ELB
 - RDS
 - ElastiCache
+- CloudFormation
+- OpsWorks
 
 Note: In it's current form, this tool is not designed to provide deeper insights, relationship mapping, optimization advice and other such logic. There are a number of tools in the market that provide this functionality.
 
