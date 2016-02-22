@@ -101,11 +101,13 @@ rescue Aws::STS::Errors::AccessDenied => error
 end
 
 # Populate hash with AWS SDK client objects
-clients   = { ec2:          Aws::EC2::Client.new,
-              iam:          Aws::IAM::Client.new,
-              elb:          Aws::ElasticLoadBalancing::Client.new,
-              rds:          Aws::RDS::Client.new,
-              elasticache:  Aws::ElastiCache::Client.new }
+clients   = { ec2:            Aws::EC2::Client.new,
+              iam:            Aws::IAM::Client.new,
+              elb:            Aws::ElasticLoadBalancing::Client.new,
+              rds:            Aws::RDS::Client.new,
+              elasticache:    Aws::ElastiCache::Client.new,
+              cloudformation: Aws::CloudFormation::Client.new,
+              opsworks:       Aws::OpsWorks::Client.new }
 
 # Main loop - iterate through AWS services within scope 
 services.each do |item|
@@ -132,7 +134,7 @@ services.each do |item|
 
           service.parse_datum( datum:      item,
                                attributes: service.attributes,
-                               table:      output)
+                               table:      output )
 
           output.new_row
         end
@@ -143,7 +145,7 @@ services.each do |item|
 
         service.parse_datum( datum:      item,
                              attributes: service.attributes,
-                             table:      output)
+                             table:      output )
 
         output.new_row
       end

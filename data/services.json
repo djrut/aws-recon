@@ -1373,6 +1373,148 @@
                     ]
                 }
             ]
+        },
+        {
+            ":name": "CloudFormation Stacks",
+            ":group": "management",
+            ":client": ":cloudformation",
+            ":method": "describe_stacks",
+            ":collection_name": "stacks",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "stack_id",
+                    ":column_width": 20,
+                    ":count": true
+                },
+                {
+                    ":column_name": "Name",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "name",
+                    ":column_width": 20
+                },
+                {
+                    ":column_name": "Description",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "description",
+                    ":column_width": 30
+                },
+                {
+                    ":column_name": "Created",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "creation_time",
+                    ":column_width": 20
+                },
+                {
+                    ":column_name": "Updated",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "last_updated_time",
+                    ":column_width": 20
+                },
+                {
+                    ":column_name": "Status",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "stack_status",
+                    ":column_width": 15
+                }
+            ]
+        },
+        {
+            ":name": "OpWorks",
+            ":group": "Management",
+            ":client": ":opsworks",
+            ":method": "describe_stacks",
+            ":collection_name": "stacks",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "stack_id",
+                    ":column_width": 15,
+                    ":count": true
+                },
+                {
+                    ":column_name": "Name",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "name",
+                    ":column_width": 25
+                },
+                {
+                    ":column_name": "ARN",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "arn",
+                    ":column_width": 20
+                },
+                {
+                    ":column_name": "Region",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "region",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "VPC",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "vpc_id",
+                    ":column_width": 12
+                },
+                {
+                    ":name": "Layers",
+                    ":type": ":foreign_collection",
+                    ":root_node": true,
+                    ":client": ":opsworks",
+                    ":method": "describe_layers",
+                    ":options": [
+                      {
+                          ":type": ":mapped",
+                          ":array": false,
+                          ":key": ":stack_id",
+                          ":value": "stack_id"
+                      }
+                    ],
+                    ":collection_name": "layers",
+                    ":attributes": [
+                    {
+                        ":column_name": "ID",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "layer_id",
+                        ":column_width": 12,
+                        ":count": true
+                    },
+                    {
+                        ":column_name": "Type",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "type",
+                        ":column_width": 15
+                    },
+                    {
+                        ":column_name": "Name",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "name",
+                        ":column_width": 15
+                    },
+                    {
+                        ":column_name": "Auto heal?",
+                        ":type": ":boolean",
+                        ":leaf_node": true,
+                        ":target": "enable_auto_healing",
+                        ":column_width": 12
+                    }]
+                }]
         }
     ]
 }
