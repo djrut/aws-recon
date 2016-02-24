@@ -10,10 +10,10 @@ module AwsRecon
       @attributes       = @metadata[:attributes]
       @totals           = Hash.new
 
-      @data = fetch_collection( method:     @metadata[:method],
-                                client:     @metadata[:client],
-                                options:    @metadata[:options],
-                                collection_name: @metadata[:collection_name] )
+      @data = fetch_collection( method:           @metadata[:method],
+                                client:           @metadata[:client],
+                                options:          @metadata[:options],
+                                collection_name:  @metadata[:collection_name] )
         print_debug(source: "#{__method__}", message: "data = #{@data}") if $debug
     end
 
@@ -39,8 +39,14 @@ module AwsRecon
       rescue Aws::IAM::Errors::ExpiredToken => error
         puts "Temporary authentication failed: #{error.message}"
         exit 1
+      rescue Aws::Errors::MissingCredentialsError => error
+        puts "Temporary authentication failed: #{error.message}"
+        exit 1
       rescue Aws::IAM::Errors::ServiceError => error
         puts "Operation failed: #{error.message}"
+        exit 1
+      rescue Aws::EC2::Errors::RequestExpired => error
+        puts "Temporary authentication failed: #{error.message}"
         exit 1
       else
         print_debug(source: "#{__method__}", message: "output[collection] = #{output[collection_name]}") if $debug
@@ -80,7 +86,7 @@ module AwsRecon
         case attribute.type
         when :scalar
           if attribute.stub
-            output = datum[attribute.stub][attribute.target]
+            output = datum[attribute.stub][attribute.target] if datum[attribute.stub]
           else
             output = datum[attribute.target]
           end
