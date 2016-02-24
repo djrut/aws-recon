@@ -60,11 +60,11 @@
                     ":column_width": 15
                 },
                 {
-                    ":column_name": "Root Dev",
+                    ":column_name": "Root",
                     ":type": ":scalar",
                     ":root_node": true,
                     ":target": "root_device_type",
-                    ":column_width": 10
+                    ":column_width": 7
                 },
                 {
                     ":column_name": "State",
@@ -82,12 +82,19 @@
                     ":column_width": 10
                 },
                 {
+                    ":column_name": "Pub.IP?",
+                    ":type": ":boolean",
+                    ":root_node": true,
+                    ":target": "public_ip_address",
+                    ":column_width": 8
+                },
+                {
                     ":column_name": "AZ",
                     ":type": ":scalar",
                     ":root_node": true,
                     ":stub": "placement",
                     ":target": "availability_zone",
-                    ":column_width": 15
+                    ":column_width": 13
                 },
                 {
                     ":column_name": "EBS Opt?",
@@ -122,7 +129,7 @@
                     ":type": ":tags",
                     ":root_node": true,
                     ":stub": "tags",
-                    ":column_width": 60
+                    ":column_width": 55
                 }
             ]
         },
@@ -286,6 +293,100 @@
                     ":root_node": true,
                     ":stub": "tags",
                     ":column_width": 60
+                }
+            ]
+        },
+        {
+            ":name": "Autoscale Groups",
+            ":group": "Compute",
+            ":client": ":asg",
+            ":method": "describe_auto_scaling_groups",
+            ":collection_name": "auto_scaling_groups",
+            ":attributes": [
+                {
+                    ":column_name": "Name",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "auto_scaling_group_name",
+                    ":column_width": 25,
+                    ":count": true
+                },
+                {
+                    ":column_name": "Min",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "min_size",
+                    ":column_width": 5
+                },
+                {
+                    ":column_name": "Max",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "max_size",
+                    ":column_width": 5
+                },
+                {
+                    ":column_name": "Des",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "desired_capacity",
+                    ":column_width": 5
+                },
+                {
+                    ":name": "Instances",
+                    ":type": ":collection",
+                    ":root_node": true,
+                    ":collection_name": "instances",
+                    ":attributes": [
+                    {
+                        ":column_name": "ID",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "instance_id",
+                        ":column_width": 15
+                    },
+                    {
+                        ":column_name": "AZ",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "availability_zone",
+                        ":column_width": 10
+                    },
+                    {
+                        ":column_name": "State",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "lifecycle_state",
+                        ":column_width": 15
+                    },
+                    {
+                        ":column_name": "Health",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "health_status",
+                        ":column_width": 15
+                    },
+                    {
+                        ":column_name": "Health",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "health_status",
+                        ":column_width": 15
+                    }]
+                },
+                {
+                    ":column_name": "Status",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "status",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "Tags",
+                    ":type": ":tags",
+                    ":root_node": true,
+                    ":stub": "tags",
+                    ":column_width": 55
                 }
             ]
         },
@@ -833,8 +934,8 @@
                 {
                     ":name": "Route Tables",
                     ":type": ":foreign_collection",
-                    ":root_node": true,
                     ":client": ":ec2",
+                    ":root_node": true,
                     ":method": "describe_route_tables",
                     ":filters": [
                       {
@@ -846,14 +947,12 @@
                     ],
                     ":collection_name": "route_tables",
                     ":attributes": [
-                    {
-                        ":column_name": "ID",
-                        ":type": ":scalar",
-                        ":leaf_node": true,
-                        ":target": "route_table_id",
-                        ":column_width": 18,
-                        ":count": true
-                    },
+                      {
+                          ":column_name": "ID",
+                          ":type": ":scalar",
+                          ":target": "route_table_id",
+                          ":column_width": 18
+                      },
                     {
                         ":name": "Routes",
                         ":type": ":collection",
@@ -906,8 +1005,8 @@
                     {
                         ":name": "Subnet Associations",
                         ":type": ":collection",
-                        ":root_node": true,
                         ":collection_name": "associations",
+                        ":root_node": true,
                         ":attributes": [
                         {
                             ":column_name": "Assoc ID",
@@ -952,7 +1051,7 @@
                     ":type": ":scalar",
                     ":root_node": true,
                     ":target": "vpc_peering_connection_id",
-                    ":column_width": 12,
+                    ":column_width": 15,
                     ":count": true
                 },
                 {
@@ -961,7 +1060,7 @@
                     ":root_node": true,
                     ":stub": "accepter_vpc_info",
                     ":target": "cidr_block",
-                    ":column_width": 12
+                    ":column_width": 18
                 },
                 {
                     ":column_name": "Accepter ID",
@@ -969,7 +1068,7 @@
                     ":root_node": true,
                     ":stub": "accepter_vpc_info",
                     ":target": "owner_id",
-                    ":column_width": 12
+                    ":column_width": 15
                 },
                 {
                     ":column_name": "Accepter VPC",
@@ -977,7 +1076,7 @@
                     ":root_node": true,
                     ":stub": "accepter_vpc_info",
                     ":target": "vpc_id",
-                    ":column_width": 12
+                    ":column_width": 15
                 },
                 {
                     ":column_name": "Requester CIDR",
@@ -985,7 +1084,7 @@
                     ":root_node": true,
                     ":stub": "requester_vpc_info",
                     ":target": "cidr_block",
-                    ":column_width": 12
+                    ":column_width": 18
                 },
                 {
                     ":column_name": "Requester ID",
@@ -993,7 +1092,7 @@
                     ":root_node": true,
                     ":stub": "requester_vpc_info",
                     ":target": "owner_id",
-                    ":column_width": 12
+                    ":column_width": 15
                 },
                 {
                     ":column_name": "Requester VPC",
@@ -1001,7 +1100,7 @@
                     ":root_node": true,
                     ":stub": "requester_vpc_info",
                     ":target": "vpc_id",
-                    ":column_width": 12
+                    ":column_width": 15
                 },
                 {
                     ":column_name": "Status",
@@ -1083,6 +1182,115 @@
                     ":root_node": true,
                     ":stub": "tags",
                     ":column_width": 60
+                }]
+        },
+        {
+            ":name": "NACLs",
+            ":group": "Network",
+            ":client": ":ec2",
+            ":method": "describe_network_acls",
+            ":collection_name": "network_acls",
+            ":attributes": [
+                {
+                    ":column_name": "ID",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "network_acl_id",
+                    ":column_width": 12,
+                    ":count": true
+                },
+                {
+                    ":column_name": "VPC",
+                    ":type": ":scalar",
+                    ":root_node": true,
+                    ":target": "vpc_id",
+                    ":column_width": 12
+                },
+                {
+                    ":column_name": "Default?",
+                    ":type": ":boolean",
+                    ":root_node": true,
+                    ":target": "is_default",
+                    ":column_width": 9
+                },
+                {
+                    ":name": "Entries",
+                    ":type": ":collection",
+                    ":root_node": true,
+                    ":collection_name": "entries",
+                    ":attributes": [
+                      {
+                        ":column_name": "Num",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "rule_number",
+                        ":column_width": 10
+                      },
+                      {
+                        ":column_name": "Proto",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "protocol",
+                        ":column_width": 10
+                      },
+                      {
+                        ":column_name": "Action",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "rule_action",
+                        ":column_width": 10
+                      },
+                      {
+                        ":column_name": "Egress?",
+                        ":type": ":boolean",
+                        ":leaf_node": true,
+                        ":target": "egress",
+                        ":column_width": 10
+                      },
+                      {
+                        ":column_name": "CIDR",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "cidr_block",
+                        ":column_width": 18
+                      },
+                      {
+                        ":column_name": "Port >",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":stub": "port_range",
+                        ":target": "from",
+                        ":column_width": 10
+                      },
+                      {
+                        ":column_name": "< Port",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":stub": "port_range",
+                        ":target": "to",
+                        ":column_width": 10
+                      }]
+                },
+                {
+                    ":name": "Associations",
+                    ":type": ":collection",
+                    ":root_node": true,
+                    ":collection_name": "associations",
+                    ":attributes": [
+                      {
+                        ":column_name": "Subnet ID",
+                        ":type": ":scalar",
+                        ":leaf_node": true,
+                        ":target": "subnet_id",
+                        ":column_width": 12
+                      }]
+                },
+                {
+                   ":column_name": "Tags",
+                   ":type": ":tags",
+                   ":root_node": true,
+                   ":stub": "tags",
+                   ":column_width": 60
                 }]
         },
         {
@@ -1561,22 +1769,22 @@
                     ":type": ":scalar",
                     ":root_node": true,
                     ":target": "stack_id",
-                    ":column_width": 20,
+                    ":column_width": 30,
                     ":count": true
                 },
                 {
                     ":column_name": "Name",
                     ":type": ":scalar",
                     ":root_node": true,
-                    ":target": "name",
-                    ":column_width": 20
+                    ":target": "stack_name",
+                    ":column_width": 30
                 },
                 {
                     ":column_name": "Description",
                     ":type": ":scalar",
                     ":root_node": true,
                     ":target": "description",
-                    ":column_width": 30
+                    ":column_width": 50
                 },
                 {
                     ":column_name": "Created",
@@ -1597,7 +1805,7 @@
                     ":type": ":scalar",
                     ":root_node": true,
                     ":target": "stack_status",
-                    ":column_width": 15
+                    ":column_width": 20
                 }
             ]
         },

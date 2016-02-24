@@ -102,6 +102,7 @@ end
 
 # Populate hash with AWS SDK client objects
 clients   = { ec2:            Aws::EC2::Client.new,
+              asg:            Aws::AutoScaling::Client.new,
               iam:            Aws::IAM::Client.new,
               elb:            Aws::ElasticLoadBalancing::Client.new,
               rds:            Aws::RDS::Client.new,
