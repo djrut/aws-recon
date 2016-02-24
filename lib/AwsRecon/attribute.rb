@@ -40,7 +40,6 @@ module AwsRecon
     def build_options(args={})
       datum             = args[:datum]
       output            = Hash.new
-      output[:filters]  = Array.new
       print_debug(source: "#{__method__}", message: "Built options = #{output}") if $debug
 
       @options.each do |option|
@@ -59,6 +58,8 @@ module AwsRecon
         end
       end
       print_debug(source: "#{__method__}", message: "Built options = #{output}") if $debug
+
+      output[:filters]  = Array.new if @filters.any?
 
       @filters.each do |filter|
         key   = filter[:key]
